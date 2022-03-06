@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace TeamFinder.Shared
 {
-    public class Event
+    public class SportEvent
     {
+        public string Name { get; set; }
+        public DateTime Date { get; set; }
     }
 }

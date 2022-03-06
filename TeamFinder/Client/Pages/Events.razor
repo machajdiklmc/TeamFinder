@@ -1,0 +1,57 @@
+﻿@page "/events"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using TeamFinder.Shared
+@attribute [Authorize]
+@inject HttpClient Http
+
+<PageTitle>Eventsaa</PageTitle>
+
+<h1>Eventsaa</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (_events == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var ev in _events)
+        {
+            <tr>
+                <td>@ev.Name</td>
+                <td>@ev.Date.ToShortDateString()</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<SportEvent>? _events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _events = await Http.GetFromJsonAsync<IEnumerable<SportEvent>?>(Endpoints.GetEvents);
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine();
+        }
+    }
+}
