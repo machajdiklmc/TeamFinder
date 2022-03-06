@@ -10,5 +10,6 @@ namespace TeamFinder.Shared
     public class Endpoints
     {
         public const string GetEvents = "api/events";
+        public const string AddEvent = "api/addevent";
     }
 }
