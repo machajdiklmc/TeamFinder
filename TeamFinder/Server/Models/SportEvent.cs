@@ -1,4 +1,6 @@
-﻿namespace TeamFinder.Server.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace TeamFinder.Server.Models
 {
     public class SportEvent
     {

@@ -11,16 +11,13 @@ namespace TeamFinder.Server.Data.Repository
 
     public abstract class RepositoryBase<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        protected abstract DbSet<TEntity> _dbSet { get; }
+        protected abstract DbSet<TEntity> DbSet { get; }
         public ApplicationDbContext DbContext { get; }
-        public async Task<IEnumerable<TEntity>> GetAll()
-        {
-            return await _dbSet.ToListAsync();
-        }
+        public async Task<IEnumerable<TEntity>> GetAll() => await DbSet.ToListAsync();
 
         public async Task Add(TEntity entity)
         {
-            _dbSet.Add(entity);
+            DbSet.Add(entity);
             await DbContext.SaveChangesAsync();
         }
 
@@ -36,6 +33,6 @@ namespace TeamFinder.Server.Data.Repository
         }
 
 
-        protected override DbSet<SportEvent> _dbSet => DbContext.Events;
+        protected override DbSet<SportEvent> DbSet => DbContext.Events;
     }
 }

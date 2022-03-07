@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamFinder.Server.Data.Repository;
 using TeamFinder.Shared;
+using TeamFinder.Shared.Models;
 using Event = Duende.IdentityServer.Events.Event;
 
 namespace TeamFinder.Server.Controllers
@@ -13,28 +15,25 @@ namespace TeamFinder.Server.Controllers
 
         private readonly ILogger<EventsController> _logger;
         private readonly EventRepository _eventRepository;
+        private readonly IMapper _mapper;
 
-        public EventsController(ILogger<EventsController> logger, EventRepository eventRepository)
+        public EventsController(ILogger<EventsController> logger, IMapper mapper, EventRepository eventRepository)
         {
             _logger = logger;
             _eventRepository = eventRepository;
+            _mapper = mapper;
         }
 
         [HttpGet(Endpoints.GetEvents)]
         public async Task<IEnumerable<SportEvent>> Get()
         {
-            return (await _eventRepository.GetAll()).Select(e => new SportEvent() { Date = e.Date, Name = e.Name});
+            return _mapper.Map<IEnumerable<SportEvent>>(await _eventRepository.GetAll());
         }
 
         [HttpPost(Endpoints.AddEvent)]
         public async Task AddEvent([FromBody] SportEvent ev)
         {
-            await _eventRepository.Add(new Models.SportEvent
-            {
-                Id = Guid.NewGuid(),
-                Name = ev.Name,
-                Date = ev.Date
-            });
+            await _eventRepository.Add(_mapper.Map<Models.SportEvent>(ev));
         }
     }
 }

@@ -25,7 +25,7 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<EventRepository>();
 
 var app = builder.Build();
