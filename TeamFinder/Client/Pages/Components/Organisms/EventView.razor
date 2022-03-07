@@ -1,0 +1,52 @@
+﻿@using TeamFinder.Shared.Models
+
+<div class="mat-layout-grid">
+    @if (SportEvents != null)
+    {
+        <div class="mat-layout-grid-inner">
+        @for (var i = RealRange.Item1; i < RealRange.Item2 && i < SportEvents.Count(); i++)
+        {
+            <!--
+            <div class="mat-layout-grid-inner">
+                @for (var j = i; i <= j + By && i+j < RealRange.Item2-RealRange.Item1 && i+j < SportEvents.Count(); j++)
+                {
+                    <div class="mat-layout-grid-cell-span-@SpanPerRow">
+                        <EventCard SportEvent="@SportEvents.ElementAt(i+j)"/>
+                    </div>
+                }
+            </div>
+            -->
+
+                
+                    <div class="mat-layout-grid-cell-span-3">
+                        <EventCard SportEvent="@SportEvents.ElementAt(i)"/>
+                    </div>
+                
+
+        }
+        </div>
+    }
+</div>
+
+@code
+{
+    [Parameter]
+    public IEnumerable<SportEvent>? SportEvents { get; set; }
+
+    [Parameter]
+    public Range? ViewRange { get; set; } = null;
+
+    [Parameter]
+    public int By { get; set; } = 4;
+    public int SpanPerRow => 12/By;
+    private (int,int) RealRange
+    {
+        get
+        {
+            if (SportEvents is null)
+                return (0,0);
+
+            return ViewRange == null ? (0, SportEvents.Count()) : (ViewRange.Value.Start.Value, ViewRange.Value.End.Value);
+        }
+    }
+}

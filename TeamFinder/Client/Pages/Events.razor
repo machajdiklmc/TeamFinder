@@ -3,15 +3,12 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using TeamFinder.Shared
 @using TeamFinder.Shared.Models
-@using MatBlazor
 @attribute [Authorize]
 @inject HttpClient Http
 
-<PageTitle>Eventsaa</PageTitle>
+<PageTitle>Events</PageTitle>
 
-<h1>Eventsaa</h1>
-
-<p>This component demonstrates fetching data from the server.</p>
+<h1>Events</h1>
 
 @if (_events == null)
 {
@@ -19,55 +16,23 @@
 }
 else
 {
-    <div class="mat-layout-grid">
-        <div class="mat-layout-grid-inner">
-        @foreach (var ev in _events)
-        {
-            <div class="mat-layout-grid-cell">
-                <MatCard class="demo-mat-card">
-                    <div class="demo-mat-card-content">
-                        <MatHeadline6 class="demo-mat-card-clean-margin">
-                            @ev.Name
-                        </MatHeadline6>
-                        <MatSubtitle2 class="demo-mat-card-clean-margin">
-                            @ev.Date.ToShortDateString()
-                        </MatSubtitle2>
-                    </div>
-                    <MatCardContent>
-                        <MatCardMedia Wide="true" ImageUrl="https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/2.jpg"></MatCardMedia>
-                        <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin">
-                            Visit ten places on our planet that are undergoing the biggest changes today.
-                        </MatBody2>
-                    </MatCardContent>
-                    <MatCardActions>
-                        <MatCardActionButtons>
-                            <MatButton>Read</MatButton>
-                            <MatButton>Bookmark</MatButton>
-                        </MatCardActionButtons>
- 
-                        <MatCardActionIcons>
-                            <MatIconButton Icon="@MatIconNames.Favorite"></MatIconButton>
-                            <MatIconButton Icon="@MatIconNames.Dashboard"></MatIconButton>
-                        </MatCardActionIcons>
-                    </MatCardActions>
-                </MatCard>
-                </div>
-        }
-        </div>
-    </div>
+    <MatPaginator Length="_events.Count()" PageSize="@pageSize" Page="@OnPage">a</MatPaginator>
+    <EventView SportEvents="_events" ViewRange="@ViewRange" By="4"/>
+
 }
 
 @code {
-    private IEnumerable<SportEvent>? _events;
-    bool panelOpenState;
-
-    protected string[] Val3Items =
+    int pageSize = 25;
+    int pageIndex = 0;
+    Range ViewRange => new (pageIndex*pageSize, pageIndex*pageSize + pageSize);
+    void OnPage(MatPaginatorPageEvent e)
     {
-        "Winter",
-        "Spring",
-        "Summer",
-        "Autumn"
-    };
+        pageSize = e.PageSize;
+        pageIndex = e.PageIndex;
+    }
+
+    private IEnumerable<SportEvent>? _events;
+
     protected override async Task OnInitializedAsync()
     {
         try

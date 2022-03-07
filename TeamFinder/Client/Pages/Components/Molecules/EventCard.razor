@@ -1,0 +1,57 @@
+﻿@using MatBlazor
+@using TeamFinder.Shared.Models
+
+<MatCard class="demo-mat-card">
+    <div class="demo-mat-card-content">
+        <MatHeadline6 class="demo-mat-card-clean-margin" @onclick="onEventClick">
+            @SportEvent?.Name
+        </MatHeadline6>
+        <MatSubtitle2 class="demo-mat-card-clean-margin">
+            @SportEvent?.Date.ToShortDateString()
+        </MatSubtitle2>
+    </div>
+    <MatCardContent @onclick="onEventClick">
+        <MatCardMedia Wide="true" ImageUrl="https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/2.jpg"></MatCardMedia>
+        <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin" style="padding: 6px;">
+            Visit ten places on our planet that are undergoing the biggest changes today.
+        </MatBody2>
+    </MatCardContent>
+    <MatCardActions>
+        <MatCardActionButtons>
+            <MatButton>Read</MatButton>
+            <MatButton>Bookmark</MatButton>
+        </MatCardActionButtons>
+ 
+        <MatCardActionIcons>
+            <MatIconButton Icon="@MatIconNames.Favorite"></MatIconButton>
+        </MatCardActionIcons>
+    </MatCardActions>
+</MatCard>
+<MatDialog @bind-IsOpen="@dialogIsOpen">
+    <MatDialogTitle>Hi</MatDialogTitle>
+    <MatDialogContent>
+        <p>What's your favorite animal?</p>
+        <MatSelect TValue="string" Label="Title">
+            <MatOptionString ></MatOptionString>
+            <MatOptionString Value="dr">Dr.</MatOptionString>
+            <MatOptionString Value="prof">Prof.</MatOptionString>
+        </MatSelect>
+
+
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick="@(e => { dialogIsOpen = false; })">No Thanks</MatButton>
+        <MatButton OnClick="@(e => { dialogIsOpen = false; })">Ok just close</MatButton>
+    </MatDialogActions>
+</MatDialog>
+@code
+{
+    [Parameter]
+    public SportEvent? SportEvent { get; set; }
+
+    public bool dialogIsOpen { get; set; }
+    private void onEventClick(MouseEventArgs obj)
+    {
+        dialogIsOpen = true;
+    }
+}

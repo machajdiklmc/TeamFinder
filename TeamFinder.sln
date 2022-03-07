@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamFinder.Server", "TeamFinder\Server\TeamFinder.Server.csproj", "{BD430D25-BCDA-44D9-BEA4-D0648D99CA98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamFinder.Server", "TeamFinder\Server\TeamFinder.Server.csproj", "{BD430D25-BCDA-44D9-BEA4-D0648D99CA98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamFinder.Client", "TeamFinder\Client\TeamFinder.Client.csproj", "{CA2D98E7-5790-48F2-9ED1-F502E67407E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamFinder.Client", "TeamFinder\Client\TeamFinder.Client.csproj", "{CA2D98E7-5790-48F2-9ED1-F502E67407E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TeamFinder.Shared", "TeamFinder\Shared\TeamFinder.Shared.csproj", "{ADC19A03-7F8C-4A3F-B330-1C4CB455B5DB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TeamFinder.Shared", "TeamFinder\Shared\TeamFinder.Shared.csproj", "{ADC19A03-7F8C-4A3F-B330-1C4CB455B5DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
