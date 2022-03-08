@@ -12,14 +12,14 @@ using TeamFinder.Server.Data;
 namespace TeamFinder.Server.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220306170946_l")]
-    partial class l
+    [Migration("20220307175035_q")]
+    partial class q
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.0")
+                .HasAnnotation("ProductVersion", "6.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -321,6 +321,9 @@ namespace TeamFinder.Server.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("JoinedEventsId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -347,6 +350,9 @@ namespace TeamFinder.Server.Data.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("SportEventId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -356,6 +362,9 @@ namespace TeamFinder.Server.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("JoinedEventsId")
+                        .IsUnique();
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
 
@@ -364,7 +373,29 @@ namespace TeamFinder.Server.Data.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("SportEventId");
+
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("TeamFinder.Server.Models.JoinedEvents", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SportEventId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SportEventId");
+
+                    b.ToTable("JoinedEvents", (string)null);
                 });
 
             modelBuilder.Entity("TeamFinder.Server.Models.SportEvent", b =>
@@ -376,7 +407,15 @@ namespace TeamFinder.Server.Data.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Sport")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -434,6 +473,43 @@ namespace TeamFinder.Server.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TeamFinder.Server.Models.ApplicationUser", b =>
+                {
+                    b.HasOne("TeamFinder.Server.Models.JoinedEvents", "JoinedEvents")
+                        .WithOne("User")
+                        .HasForeignKey("TeamFinder.Server.Models.ApplicationUser", "JoinedEventsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TeamFinder.Server.Models.SportEvent", null)
+                        .WithMany("JoinedUsers")
+                        .HasForeignKey("SportEventId");
+
+                    b.Navigation("JoinedEvents");
+                });
+
+            modelBuilder.Entity("TeamFinder.Server.Models.JoinedEvents", b =>
+                {
+                    b.HasOne("TeamFinder.Server.Models.SportEvent", "SportEvent")
+                        .WithMany()
+                        .HasForeignKey("SportEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SportEvent");
+                });
+
+            modelBuilder.Entity("TeamFinder.Server.Models.JoinedEvents", b =>
+                {
+                    b.Navigation("User")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("TeamFinder.Server.Models.SportEvent", b =>
+                {
+                    b.Navigation("JoinedUsers");
                 });
 #pragma warning restore 612, 618
         }

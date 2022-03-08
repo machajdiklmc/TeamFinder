@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using TeamFinder.Server.Controllers;
 using TeamFinder.Server.Data;
 using TeamFinder.Server.Data.Repository;
 using TeamFinder.Server.Models;
@@ -27,6 +28,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<EventRepository>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<JoinedEventsRepository>();
 
 var app = builder.Build();
 

@@ -4,7 +4,7 @@
 
 namespace TeamFinder.Server.Data.Migrations
 {
-    public partial class l : Migration
+    public partial class a : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

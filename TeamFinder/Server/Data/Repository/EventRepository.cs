@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using TeamFinder.Server.Models;
 
 namespace TeamFinder.Server.Data.Repository
@@ -6,7 +7,10 @@ namespace TeamFinder.Server.Data.Repository
     public interface IRepository<TEntity> where TEntity : class
     {
         public Task<IEnumerable<TEntity>> GetAll();
+        public Task<TEntity?> GetSingleOrDefault(Expression<Func<TEntity, bool>> predicate);
         public Task Add(TEntity entity);
+        public Task Update(TEntity entity);
+        public Task Delete(TEntity entity);
     }
 
     public abstract class RepositoryBase<TEntity> : IRepository<TEntity> where TEntity : class
@@ -18,6 +22,23 @@ namespace TeamFinder.Server.Data.Repository
         public async Task Add(TEntity entity)
         {
             DbSet.Add(entity);
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async Task<TEntity?> GetSingleOrDefault(Expression<Func<TEntity, bool>> predicate)
+        {
+            return await DbSet.SingleOrDefaultAsync(predicate);
+        }
+
+        public async Task Update(TEntity entity)
+        {
+            DbContext.Update(entity);
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async Task Delete(TEntity entity)
+        {
+            DbContext.Remove(entity);
             await DbContext.SaveChangesAsync();
         }
 
