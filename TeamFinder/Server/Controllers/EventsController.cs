@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamFinder.Server.Data.Repository;
 using TeamFinder.Shared;
@@ -7,7 +8,7 @@ using SportEvent = TeamFinder.Shared.Models.SportEvent;
 
 namespace TeamFinder.Server.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public class EventsController : ControllerBase
     {
