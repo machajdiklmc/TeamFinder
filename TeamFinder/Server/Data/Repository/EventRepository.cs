@@ -6,7 +6,7 @@ namespace TeamFinder.Server.Data.Repository
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        public Task<IEnumerable<TEntity>> GetAll();
+        public Task<List<TEntity>> GetAll();
         public Task<TEntity?> GetSingleOrDefault(Expression<Func<TEntity, bool>> predicate);
         public Task Add(TEntity entity);
         public Task Update(TEntity entity);
@@ -17,7 +17,7 @@ namespace TeamFinder.Server.Data.Repository
     {
         protected abstract DbSet<TEntity> DbSet { get; }
         public ApplicationDbContext DbContext { get; }
-        public async Task<IEnumerable<TEntity>> GetAll() => await DbSet.ToListAsync();
+        public async Task<List<TEntity>> GetAll() => await DbSet.ToListAsync();
 
         public async Task Add(TEntity entity)
         {

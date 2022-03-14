@@ -34,10 +34,17 @@ namespace TeamFinder.Server.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpGet(Endpoints.GetEvents)]
-        public async Task<IEnumerable<SportEvent>> Get()
+        [HttpGet(Endpoints.GetAllEvents)]
+        public async Task<List<SportEvent>> Get()
         {
-            return _mapper.Map<IEnumerable<SportEvent>>(await _eventRepository.GetAll());
+            return _mapper.Map<List<SportEvent>>(await _eventRepository.GetAll());
+        }
+        
+        [HttpGet(Endpoints.GetUserJoinedEvents)]
+        public async Task<List<SportEvent>> FindUserJoinedEvents([FromQuery] string userId)
+        {
+            var a = _mapper.Map<List<SportEvent>>(await _joinedEventsRepository.FindJoinedEvents(userId));
+            return a;
         }
 
         [HttpPost(Endpoints.AddEvent)]
@@ -47,17 +54,17 @@ namespace TeamFinder.Server.Controllers
         }
 
         [HttpPost(Endpoints.JoinEvent)]
-        public async Task JoinEvent([FromQuery] string userId, [FromQuery] Guid eventId)
+        public async Task<bool> JoinEvent([FromBody] JoinedEvents joinedEvent)
         {
-            var a = await _joinedEventsRepository.FindJoinedEvents(userId);
-            await _joinedEventsRepository.JoinEvent(userId, eventId);
+            var a = await _joinedEventsRepository.FindJoinedEvents(joinedEvent.UserId);
+            return await _joinedEventsRepository.JoinEvent(joinedEvent.UserId, joinedEvent.SportEventId);
         }
 
         [HttpPost(Endpoints.LeaveEvent)]
-        public async Task LeaveEvent([FromQuery] string userId, [FromQuery] Guid eventId)
+        public async Task<bool> LeaveEvent([FromBody] JoinedEvents joinedEvent)
         {
-            var a = await _joinedEventsRepository.FindJoinedEvents(userId);
-            await _joinedEventsRepository.LeaveEvent(userId, eventId);
+            var a = await _joinedEventsRepository.FindJoinedEvents(joinedEvent.UserId);
+            return await _joinedEventsRepository.LeaveEvent(joinedEvent.UserId, joinedEvent.SportEventId);
         }
     }
 
@@ -78,37 +85,41 @@ namespace TeamFinder.Server.Controllers
 
         protected override DbSet<JoinedEvents> DbSet => DbContext.JoinedEvents;
 
-        public async Task<IEnumerable<Models.SportEvent>> FindJoinedEvents(string userId)
+        public async Task<List<Models.SportEvent>> FindJoinedEvents(string userId)
         {
             return (await DbContext.JoinedEvents
                     .Include(ev => ev.SportEvent)
                     .Where(e => e.UserId == userId)
                     .ToListAsync())
-                .Select(events => events.SportEvent);
+                .Select(events => events.SportEvent)
+                .ToList();
         }
 
-        public async Task JoinEvent(string userId, Guid eventId)
+        public async Task<bool> JoinEvent(string userId, Guid eventId)
         {
             var joinedEvent = await GetSingleOrDefault(e => e.SportEventId == eventId && e.UserId == userId);
 
             if (joinedEvent is not null)
-                return;
+                return false;
 
             await Add(new JoinedEvents
             {
                 UserId = userId,
                 SportEventId = eventId
             });
+
+            return true;
         }
 
-        public async Task LeaveEvent(string userId, Guid eventId)
+        public async Task<bool> LeaveEvent(string userId, Guid eventId)
         {
             var joinedEvent = await GetSingleOrDefault(e => e.SportEventId == eventId && e.UserId == userId);
 
             if (joinedEvent is null)
-                return;
+                return false;
 
-            await Delete(joinedEvent!);
+            await Delete(joinedEvent);
+            return true;
         }
     }
 }

@@ -31,13 +31,13 @@ else
         pageIndex = e.PageIndex;
     }
 
-    private IEnumerable<SportEvent>? _events;
+    private List<SportEvent>? _events;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _events = await Http.GetFromJsonAsync<IEnumerable<SportEvent>?>(Endpoints.GetEvents);
+            _events = await Http.GetFromJsonAsync<List<SportEvent>?>(Endpoints.GetAllEvents);
         }
         catch (AccessTokenNotAvailableException exception)
         {

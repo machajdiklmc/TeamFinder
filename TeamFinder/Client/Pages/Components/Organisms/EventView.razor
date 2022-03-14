@@ -1,4 +1,8 @@
 ﻿@using TeamFinder.Shared.Models
+@using TeamFinder.Shared
+@using IdentityModel
+@inject HttpClient http
+@inject AuthenticationStateProvider provider
 
 <div class="mat-layout-grid">
     @if (SportEvents != null)
@@ -6,23 +10,9 @@
         <div class="mat-layout-grid-inner">
         @for (var i = RealRange.Item1; i < RealRange.Item2 && i < SportEvents.Count(); i++)
         {
-            <!--
-            <div class="mat-layout-grid-inner">
-                @for (var j = i; i <= j + By && i+j < RealRange.Item2-RealRange.Item1 && i+j < SportEvents.Count(); j++)
-                {
-                    <div class="mat-layout-grid-cell-span-@SpanPerRow">
-                        <EventCard SportEvent="@SportEvents.ElementAt(i+j)"/>
-                    </div>
-                }
+            <div class="mat-layout-grid-cell-span-3">
+                <EventCard @bind-SportEvent="@SportEvents[i]"/>
             </div>
-            -->
-
-                
-                    <div class="mat-layout-grid-cell-span-3">
-                        <EventCard SportEvent="@SportEvents.ElementAt(i)"/>
-                    </div>
-                
-
         }
         </div>
     }
@@ -31,8 +21,9 @@
 @code
 {
     [Parameter]
-    public IEnumerable<SportEvent>? SportEvents { get; set; }
-
+    public List<SportEvent>? SportEvents { get; set; }
+    public AuthenticationState? State { get; set; }
+    private User _user { get; set; } = new User();
     [Parameter]
     public Range? ViewRange { get; set; } = null;
 
@@ -49,4 +40,20 @@
             return ViewRange == null ? (0, SportEvents.Count()) : (ViewRange.Value.Start.Value, ViewRange.Value.End.Value);
         }
     }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        State = await provider.GetAuthenticationStateAsync();
+        _user.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+        var aaa = await http.GetAsync(Endpoints.GetUserJoinedEvents + "?userId=" + _user.Id);
+        var joinedEvents = await aaa.Content.ReadFromJsonAsync<List<SportEvent>>();
+
+        foreach (var ev in joinedEvents!)
+        {
+            var e = SportEvents?.Find(e => e.Id == ev.Id);
+            if (e is null) continue;
+            e.UserIsJoined = true;
+        }
+    }
+
 }
