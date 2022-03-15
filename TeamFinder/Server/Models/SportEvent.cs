@@ -9,6 +9,6 @@ namespace TeamFinder.Server.Models
         public string Description { get; set; }
         public string Sport { get; set; }
         public DateTime Date { get; set; }
-        public ICollection<JoinedEvents> JoinedEvents { get; set; }
+        public List<ApplicationUser> Users { get; set; }
     }
 }

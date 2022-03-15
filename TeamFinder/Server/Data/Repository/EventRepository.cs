@@ -10,5 +10,11 @@ namespace TeamFinder.Server.Data.Repository
         }
 
         protected override DbSet<SportEvent> DbSet => DbContext.Events;
+
+        public override async Task Add(SportEvent entity)
+        {
+            DbSet.Add(entity);
+            await DbContext.SaveChangesAsync();
+        }
     }
 }

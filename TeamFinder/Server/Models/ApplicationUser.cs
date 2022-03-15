@@ -6,6 +6,6 @@ namespace TeamFinder.Server.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        public ICollection<JoinedEvents> JoinedEvents { get; set; }
+        public ICollection<SportEvent> Events { get; set; }
     }
 }

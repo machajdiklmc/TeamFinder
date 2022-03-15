@@ -1,8 +1,6 @@
-﻿using System.Collections.Immutable;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using TeamFinder.Shared.Models;
 
-namespace TeamFinder.Shared.Models
+namespace TeamFinder.Client.Pages.Models
 {
     public class SportEvent
     {
@@ -11,8 +9,7 @@ namespace TeamFinder.Shared.Models
         public string Description { get; set; }
         public string Sport { get; set; }
         public DateTime Date { get; set; }
-        public string OwnerId { get; set; }
-        public RelationshipType Type { get; set; }
+        public RelationshipType Type { get; set; } = RelationshipType.None;
 
         public SportEvent(string name, DateTime date, string description)
         {

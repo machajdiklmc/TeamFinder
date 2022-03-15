@@ -1,6 +1,6 @@
 ﻿namespace TeamFinder.Shared.Models;
 
-public class User
+public class User 
 {
     public string? Id { get; set; }
     public string? UserName { get; set; }

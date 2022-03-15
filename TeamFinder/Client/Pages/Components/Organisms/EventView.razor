@@ -1,6 +1,8 @@
 ﻿@using TeamFinder.Shared.Models
 @using TeamFinder.Shared
 @using IdentityModel
+@using TeamFinder.Client.Pages.Models
+@using SportEvent = TeamFinder.Client.Pages.Models.SportEvent
 @inject HttpClient http
 @inject AuthenticationStateProvider provider
 
@@ -23,7 +25,7 @@
     [Parameter]
     public List<SportEvent>? SportEvents { get; set; }
     public AuthenticationState? State { get; set; }
-    private User _user { get; set; } = new User();
+    private User User { get; set; } = new User();
     [Parameter]
     public Range? ViewRange { get; set; } = null;
 
@@ -44,15 +46,15 @@
     protected override async Task OnInitializedAsync()
     {
         State = await provider.GetAuthenticationStateAsync();
-        _user.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
-        var aaa = await http.GetAsync(Endpoints.GetUserJoinedEvents + "?userId=" + _user.Id);
-        var joinedEvents = await aaa.Content.ReadFromJsonAsync<List<SportEvent>>();
+        User.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+        var aaa = await http.GetAsync(Endpoints.GetUserEvents + "?userId=" + User.Id);
+        var userEvents = await aaa.Content.ReadFromJsonAsync<List<SportEvent>>();
 
-        foreach (var ev in joinedEvents!)
+        foreach (var ev in userEvents!)
         {
             var e = SportEvents?.Find(e => e.Id == ev.Id);
             if (e is null) continue;
-            e.UserIsJoined = true;
+            e.Type = ev.Type;
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using TeamFinder.Server.Models;
 
 namespace TeamFinder.Server.Data.Repository;
 
@@ -9,7 +10,7 @@ public abstract class RepositoryBase<TEntity> : IRepository<TEntity> where TEnti
     public ApplicationDbContext DbContext { get; }
     public async Task<List<TEntity>> GetAll() => await DbSet.ToListAsync();
 
-    public async Task Add(TEntity entity)
+    public virtual async Task Add(TEntity entity)
     {
         DbSet.Add(entity);
         await DbContext.SaveChangesAsync();

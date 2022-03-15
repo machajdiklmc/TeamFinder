@@ -14,5 +14,6 @@ namespace TeamFinder.Shared
         public const string JoinEvent = "api/joinevent";
         public const string LeaveEvent = "api/leaveevent";
         public const string GetUserJoinedEvents = "api/userjoinedevents/{userId}";
+        public const string GetUserEvents = "api/getuserevents/{userId}";
     }
 }
