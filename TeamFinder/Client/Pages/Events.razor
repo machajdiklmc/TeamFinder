@@ -1,0 +1,53 @@
+﻿@page "/events"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using TeamFinder.Shared
+@using TeamFinder.Shared.Models
+@using TeamFinder.Client.Pages.Models
+@using SportEvent = TeamFinder.Client.Pages.Models.SportEvent
+@attribute [Authorize]
+@inject HttpClient Http
+
+<PageTitle>Events</PageTitle>
+
+<h1>Events</h1>
+
+@if (_events == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MatPaginator Length="_events.Count()" PageSize="@pageSize" Page="@OnPage">a</MatPaginator>
+    <EventView SportEvents="_events" ViewRange="@ViewRange" By="4"/>
+
+}
+
+@code {
+    int pageSize = 25;
+    int pageIndex = 0;
+    Range ViewRange => new (pageIndex*pageSize, pageIndex*pageSize + pageSize);
+    void OnPage(MatPaginatorPageEvent e)
+    {
+        pageSize = e.PageSize;
+        pageIndex = e.PageIndex;
+    }
+
+    private List<SportEvent>? _events;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _events = await Http.GetFromJsonAsync<List<SportEvent>?>(Endpoints.GetAllEvents);
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine();
+        }
+    }
+}

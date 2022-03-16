@@ -1,3 +1,4 @@
+using MatBlazor;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -14,5 +15,5 @@ builder.Services.AddHttpClient("TeamFinder.ServerAPI", client => client.BaseAddr
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("TeamFinder.ServerAPI"));
 
 builder.Services.AddApiAuthorization();
-
+builder.Services.AddMatBlazor();
 await builder.Build().RunAsync();

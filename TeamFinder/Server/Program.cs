@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using TeamFinder.Client;
+using TeamFinder.Server.Controllers;
 using TeamFinder.Server.Data;
+using TeamFinder.Server.Data.Repository;
 using TeamFinder.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    {
+        options.UseSqlServer(connectionString);
+        options.EnableSensitiveDataLogging();
+    });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -24,6 +30,10 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<EventRepository>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<UserEventsRepository>();
 
 var app = builder.Build();
 

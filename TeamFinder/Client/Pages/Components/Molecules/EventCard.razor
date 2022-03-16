@@ -1,0 +1,141 @@
+﻿@using MatBlazor
+@using TeamFinder.Shared
+@using TeamFinder.Shared.Models
+@using TeamFinder.Client.Pages.Models
+@using System.Net
+@using IdentityModel
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Diagnostics
+@using SportEvent = TeamFinder.Client.Pages.Models.SportEvent
+
+@inject AuthenticationStateProvider provider
+@inject HttpClient http
+
+<MatCard class="demo-mat-card">
+    <div class="demo-mat-card-content">
+        <MatHeadline6 class="demo-mat-card-clean-margin" @onclick="OnEventClick">
+            @SportEvent?.Name
+        </MatHeadline6>
+        <MatSubtitle2 class="demo-mat-card-clean-margin">
+            @SportEvent?.Date.ToShortDateString()
+        </MatSubtitle2>
+    </div>
+    <MatCardContent @onclick="OnEventClick">
+        <MatCardMedia Wide="true" ImageUrl="https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/2.jpg"></MatCardMedia>
+        <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin" style="padding: 6px;">
+            @SportEvent?.Description
+        </MatBody2>
+    </MatCardContent>
+    <MatCardActions>
+        <MatCardActionButtons>
+            @if (SportEvent is not null && SportEvent.Type == RelationshipType.Owner)
+            {
+                <MatButton Disabled="true">Owner</MatButton>  
+            }
+            else if (SportEvent is not null && SportEvent.Type == RelationshipType.Joined)
+            {
+                <MatButton @onclick="OnUserClickLeaveEvent">Leave</MatButton>
+            }
+            else
+            {
+                <MatButton @onclick="OnUserClickJoinEvent">Join</MatButton>  
+            }
+            
+        </MatCardActionButtons>
+ 
+        <MatCardActionIcons>
+            <MatIconButton Icon="@MatIconNames.Favorite"></MatIconButton>
+        </MatCardActionIcons>
+    </MatCardActions>
+</MatCard>
+<MatDialog @bind-IsOpen="@DialogIsOpen">
+    <MatDialogTitle>Hi</MatDialogTitle>
+    <MatDialogContent>
+        <p>What's your favorite animal?</p>
+        <MatSelect TValue="string" Label="Title">
+            <MatOptionString ></MatOptionString>
+            <MatOptionString Value="dr">Dr.</MatOptionString>
+            <MatOptionString Value="prof">Prof.</MatOptionString>
+        </MatSelect>
+
+
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick="@(e => { DialogIsOpen = false; })">No Thanks</MatButton>
+        <MatButton OnClick="@(e => { DialogIsOpen = false; })">Ok just close</MatButton>
+    </MatDialogActions>
+</MatDialog>
+@code
+{
+    private User _user = new User();
+    private SportEvent? _sportEvent;
+
+    [Parameter]
+    public SportEvent? SportEvent
+    {
+        get => _sportEvent;
+        set
+        {
+            if (_sportEvent == value) return;
+            _sportEvent = value;
+            SportEventChanged.InvokeAsync(value);
+        }
+
+    }
+
+    [Parameter]
+    public EventCallback<SportEvent> SportEventChanged { get; set; }
+
+    public AuthenticationState? State { get; set; }
+    
+    private bool DialogIsOpen { get; set; }
+    private void OnEventClick(MouseEventArgs obj)
+    {
+        DialogIsOpen = true;
+    }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        State = await provider.GetAuthenticationStateAsync();
+        _user.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+    }
+
+    private async void OnUserClickLeaveEvent(MouseEventArgs obj)
+    {
+        var responseMessage = await http.PostAsJsonAsync<UserEvents>(Endpoints.LeaveEvent, new UserEvents()
+        {
+            UserId = _user.Id,
+            SportEventId = SportEvent!.Id,
+            Type = RelationshipType.Joined
+        });
+
+        var success = await responseMessage.Content.ReadFromJsonAsync<bool>() == false;
+        if (success)
+        {
+            SportEvent = new SportEvent(SportEvent.Name, SportEvent.Date, SportEvent.Description)
+            {
+                Type = RelationshipType.None
+            };
+        }
+    }
+
+    private async void OnUserClickJoinEvent(MouseEventArgs obj)
+    {
+        var responseMessage = await http.PostAsJsonAsync<UserEvents>(Endpoints.JoinEvent,new UserEvents()
+        {
+            UserId = _user.Id,
+            SportEventId = SportEvent!.Id,
+            Type = RelationshipType.Joined
+        });
+        
+        var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
+        if (success)
+        {
+            SportEvent = new SportEvent(SportEvent.Name, SportEvent.Date, SportEvent.Description)
+            {
+                Type = RelationshipType.None
+            };
+        }
+    }
+}
+    
