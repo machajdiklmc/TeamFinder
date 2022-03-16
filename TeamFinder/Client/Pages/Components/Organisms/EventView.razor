@@ -47,6 +47,7 @@
     {
         State = await provider.GetAuthenticationStateAsync();
         User.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+        SportEvents?.ForEach(e => e.Type=RelationshipType.None);
         var aaa = await http.GetAsync(Endpoints.GetUserEvents + "?userId=" + User.Id);
         var userEvents = await aaa.Content.ReadFromJsonAsync<List<SportEvent>>();
 
