@@ -13,7 +13,6 @@ namespace TeamFinder.Shared.Models
         public DateTime Date { get; set; }
         public string OwnerId { get; set; }
         public RelationshipType Type { get; set; }
-
         public SportEvent(string name, DateTime date, string description)
         {
             Name = name;

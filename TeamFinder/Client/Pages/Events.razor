@@ -14,7 +14,7 @@
 
 @if (_events == null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>@LoadingMessage</em></p>
 }
 else
 {
@@ -26,6 +26,7 @@ else
 @code {
     int pageSize = 25;
     int pageIndex = 0;
+    string LoadingMessage = "Loading...";
     Range ViewRange => new (pageIndex*pageSize, pageIndex*pageSize + pageSize);
     void OnPage(MatPaginatorPageEvent e)
     {
@@ -48,6 +49,13 @@ else
         catch (Exception e)
         {
             Console.WriteLine();
+        }
+        finally
+        {
+            if (_events == null)
+            {
+                LoadingMessage = "Error while getting events";
+            }
         }
     }
 }

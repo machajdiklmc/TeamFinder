@@ -21,7 +21,7 @@
         </MatSubtitle2>
     </div>
     <MatCardContent @onclick="OnEventClick">
-        <MatCardMedia Wide="true" ImageUrl="https://material-components.github.io/material-components-web-catalog/static/media/photos/3x2/2.jpg"></MatCardMedia>
+        
         <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin" style="padding: 6px;">
             @SportEvent?.Description
         </MatBody2>
@@ -106,35 +106,42 @@
         {
             UserId = _user.Id,
             SportEventId = SportEvent!.Id,
-            Type = RelationshipType.Joined
+            SportEvent = SportEvent.ToShared(""),
+            User = _user
         });
 
-        var success = await responseMessage.Content.ReadFromJsonAsync<bool>() == false;
+        var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
         if (success)
         {
-            SportEvent = new SportEvent(SportEvent.Name, SportEvent.Date, SportEvent.Description)
+            SportEvent.Type = RelationshipType.None;
+            try
             {
-                Type = RelationshipType.None
-            };
+                await SportEventChanged.InvokeAsync(SportEvent);
+            }
+            catch (Exception e){}
         }
     }
 
     private async void OnUserClickJoinEvent(MouseEventArgs obj)
     {
-        var responseMessage = await http.PostAsJsonAsync<UserEvents>(Endpoints.JoinEvent,new UserEvents()
+        var responseMessage = await http.PostAsJsonAsync<UserEvents>(Endpoints.JoinEvent, new UserEvents()
         {
             UserId = _user.Id,
             SportEventId = SportEvent!.Id,
-            Type = RelationshipType.Joined
+            SportEvent = SportEvent.ToShared(""),
+            User = _user
         });
-        
+
         var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
+
         if (success)
         {
-            SportEvent = new SportEvent(SportEvent.Name, SportEvent.Date, SportEvent.Description)
+            SportEvent.Type = RelationshipType.Joined;
+            try
             {
-                Type = RelationshipType.None
-            };
+                await SportEventChanged.InvokeAsync(SportEvent);
+            }
+            catch (Exception e){}
         }
     }
 }

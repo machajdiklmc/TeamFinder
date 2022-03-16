@@ -48,14 +48,22 @@
         State = await provider.GetAuthenticationStateAsync();
         User.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
         SportEvents?.ForEach(e => e.Type=RelationshipType.None);
-        var aaa = await http.GetAsync(Endpoints.GetUserEvents + "?userId=" + User.Id);
-        var userEvents = await aaa.Content.ReadFromJsonAsync<List<SportEvent>>();
-
-        foreach (var ev in userEvents!)
+        try
         {
-            var e = SportEvents?.Find(e => e.Id == ev.Id);
-            if (e is null) continue;
-            e.Type = ev.Type;
+
+            var aaa = await http.PostAsJsonAsync(Endpoints.GetUserEvents, new UserEventsRequest(User.Id!, null));
+            var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
+
+            foreach (var ev in userEvents!)
+            {
+                var e = SportEvents?.Find(e => e.Id == ev.SportEventId);
+                if (e is null) continue;
+                e.Type = ev.Type;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine();
         }
     }
 

@@ -9,7 +9,6 @@ using SportEvent = TeamFinder.Shared.Models.SportEvent;
 
 namespace TeamFinder.Server.Controllers
 {
-    [Authorize]
     [ApiController]
     public class EventsController : ControllerBase
     {
@@ -32,23 +31,24 @@ namespace TeamFinder.Server.Controllers
             _userRepository = userRepository;
         }
 
+        [AllowAnonymous]
         [HttpGet(Endpoints.GetAllEvents)]
         public async Task<List<SportEvent>> Get()
         {
             return _mapper.Map<List<SportEvent>>(await _eventRepository.GetAll());
         }
-        
-        [HttpGet(Endpoints.GetUserJoinedEvents)]
-        public async Task<List<SportEvent>> FindUserJoinedEvents([FromQuery] string userId)
+
+        [HttpPost(Endpoints.GetAllUsersInEvent)]
+        public async Task<List<SportEvent>> GetAllUsersInEvent([FromBody] Guid eventId)
         {
-            var a = _mapper.Map<List<SportEvent>>(await _userEventsRepository.FindUserEvents(userId, RelationshipType.Joined));
+            var a = _mapper.Map<List<SportEvent>>(await _userEventsRepository.FindUserEventsByEvent(eventId));
             return a;
         }
         [AllowAnonymous]
-        [HttpGet(Endpoints.GetUserEvents)]
-        public async Task<List<SportEvent>> FindUserEvents([FromQuery] string userId)
+        [HttpPost(Endpoints.GetUserEvents)]
+        public async Task<List<Models.UserEvents>> FindUserEvents([FromBody] UserEventsRequest request)
         {
-            var a = _mapper.Map<List<SportEvent>>(await _userEventsRepository.FindUserEvents(userId, null));
+            var a = _mapper.Map<List<Models.UserEvents>>(await _userEventsRepository.FindUserEventsByUser(request.UserId, (RelationshipType?)request.Type));
             return a;
         }
         
@@ -60,6 +60,7 @@ namespace TeamFinder.Server.Controllers
             await _userEventsRepository.JoinEvent(ev.OwnerId, ev.Id, RelationshipType.Owner);
         }
 
+        [AllowAnonymous]
         [HttpPost(Endpoints.JoinEvent)]
         public async Task<bool> JoinEvent([FromBody] UserEvents userEvent)
         {
