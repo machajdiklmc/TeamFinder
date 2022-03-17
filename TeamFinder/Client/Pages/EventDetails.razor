@@ -1,0 +1,23 @@
+﻿@page "/EventDetails/{SportEventId}"
+@using TeamFinder.Shared.Models
+@using TeamFinder.Shared
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject HttpClient http
+@inject NavigationManager NavigationManager
+
+<h3>EventDetails - @SportEvent?.Name</h3>
+<BingMap></BingMap>
+@code {
+
+    SportEvent? SportEvent { get; set; }
+
+    [Parameter]
+    public string SportEventId { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var aaa = await http.PostAsJsonAsync(Endpoints.GetEvent, SportEventId);
+        SportEvent = await aaa.Content.ReadFromJsonAsync<SportEvent>();
+    }
+}

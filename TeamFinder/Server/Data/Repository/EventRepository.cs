@@ -16,5 +16,12 @@ namespace TeamFinder.Server.Data.Repository
             DbSet.Add(entity);
             await DbContext.SaveChangesAsync();
         }
+
+        public async Task<SportEvent?> GetEvent(Guid sportEventId)
+        {
+            return await DbSet.Include(e => e.Users)
+                .Where(e => e.Id == sportEventId)
+                .SingleOrDefaultAsync();
+        }
     }
 }

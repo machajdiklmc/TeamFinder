@@ -1,0 +1,18 @@
+﻿@using MatBlazor
+@inject IJSRuntime JSRuntime
+
+<MatPaper Outlined="true">
+    <div id="map" style="height:500px;width:95%;">
+    </div>
+</MatPaper>
+@code {
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("loadBingMap", null);
+        }
+    }
+
+}

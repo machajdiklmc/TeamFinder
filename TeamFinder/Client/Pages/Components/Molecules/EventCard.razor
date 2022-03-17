@@ -8,6 +8,7 @@
 @using System.Diagnostics
 @using SportEvent = TeamFinder.Client.Pages.Models.SportEvent
 
+@inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider provider
 @inject HttpClient http
 
@@ -21,8 +22,7 @@
             <MatButton Icon="face" OnClick="@OnPlayersExpand">People (@PeopleInEventCount)</MatButton>
         </MatSubtitle2>
     </div>
-    <MatCardContent @onclick="OnEventClick">
-        
+    <MatCardContent @onclick="@OnEventRedirect">
         <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin" style="padding: 6px;">
             @SportEvent?.Description
         </MatBody2>
@@ -87,11 +87,11 @@
 
     [Parameter]
     public User User { get; set; } = new User();
-    private SportEvent? _sportEvent;
-    public int PeopleInEventCount { get; set; }
-    public List<User>? PeopleInEvent { get; set; }
-    [Parameter]
-    public SportEvent? SportEvent
+    private SportEvent _sportEvent = null!;
+    int PeopleInEventCount { get; set; }
+    List<User>? PeopleInEvent { get; set; }
+    [Parameter, EditorRequired]
+    public SportEvent SportEvent
     {
         get => _sportEvent;
         set
@@ -112,6 +112,11 @@
     private void OnEventClick(MouseEventArgs obj)
     {
         DialogIsOpen = true;
+    }
+
+    private void OnEventRedirect()
+    {
+        NavigationManager.NavigateTo($"/eventdetails/{SportEvent.Id}");
     }
 
     private void OnPlayersExpand(MouseEventArgs e)
