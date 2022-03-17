@@ -2,8 +2,10 @@
 @using TeamFinder.Shared
 @using IdentityModel
 @using TeamFinder.Client.Pages.Models
+@using TeamFinder.Client.Repository
 @using SportEvent = TeamFinder.Client.Pages.Models.SportEvent
 @inject HttpClient http
+@inject UserRepository userRepository
 @inject AuthenticationStateProvider provider
 
 <div class="mat-layout-grid">
@@ -13,7 +15,7 @@
         @for (var i = RealRange.Item1; i < RealRange.Item2 && i < SportEvents.Count(); i++)
         {
             <div class="mat-layout-grid-cell-span-3">
-                <EventCard @bind-SportEvent="@SportEvents[i]"/>
+                <EventCard User="@User" @bind-SportEvent="@SportEvents[i]"/>
             </div>
         }
         </div>
@@ -24,14 +26,18 @@
 {
     [Parameter]
     public List<SportEvent>? SportEvents { get; set; }
+
     public AuthenticationState? State { get; set; }
     private User User { get; set; } = new User();
+
     [Parameter]
     public Range? ViewRange { get; set; } = null;
 
     [Parameter]
     public int By { get; set; } = 4;
-    public int SpanPerRow => 12/By;
+
+    public int SpanPerRow => 12 / By;
+
     private (int,int) RealRange
     {
         get
@@ -42,29 +48,23 @@
             return ViewRange == null ? (0, SportEvents.Count()) : (ViewRange.Value.Start.Value, ViewRange.Value.End.Value);
         }
     }
-    
+
+
     protected override async Task OnInitializedAsync()
     {
         State = await provider.GetAuthenticationStateAsync();
         User.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
-        SportEvents?.ForEach(e => e.Type=RelationshipType.None);
-        try
-        {
+        User = await userRepository.GetUser(User.Id!);
+        SportEvents?.ForEach(e => e.Type = RelationshipType.None);
+        var aaa = await http.PostAsJsonAsync(Endpoints.GetUserEvents, new UserEventsRequest(User.Id!, null));
+        var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
 
-            var aaa = await http.PostAsJsonAsync(Endpoints.GetUserEvents, new UserEventsRequest(User.Id!, null));
-            var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
-
-            foreach (var ev in userEvents!)
-            {
-                var e = SportEvents?.Find(e => e.Id == ev.SportEventId);
-                if (e is null) continue;
-                e.Type = ev.Type;
-            }
-        }
-        catch (Exception e)
+        foreach (var ev in userEvents!)
         {
-            Console.WriteLine();
+            var e = SportEvents?.Find(e => e.Id == ev.SportEventId);
+            if (e is null) continue;
+            e.Type = ev.Type;
         }
     }
-
 }
+

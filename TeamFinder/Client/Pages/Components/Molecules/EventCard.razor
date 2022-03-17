@@ -54,7 +54,7 @@
     <MatDialogContent>
         @if (PeopleInEvent is not null)
         {
-            @for (int i = 0; i< PeopleInEvent.Count; i++)
+            @for (var i = 0; i< PeopleInEvent.Count; i++)
             {
                 <p>@i. @PeopleInEvent[i].UserName</p>
             }
@@ -84,7 +84,9 @@
 @code
 {
     public bool PlayersExpanded { get; set; }
-    private User _user = new User();
+
+    [Parameter]
+    public User User { get; set; } = new User();
     private SportEvent? _sportEvent;
     public int PeopleInEventCount { get; set; }
     public List<User>? PeopleInEvent { get; set; }
@@ -120,7 +122,7 @@
     protected override async Task OnInitializedAsync()
     {
         State = await provider.GetAuthenticationStateAsync();
-        _user.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+        User ??= new User() {Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value};
         var aaa = await http.PostAsJsonAsync(Endpoints.GetAllUsersInEvent, SportEvent?.Id);
         var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
         PeopleInEventCount = userEvents?.Count() ?? 0;
@@ -131,21 +133,26 @@
     {
         var responseMessage = await http.PostAsJsonAsync<UserEvents>(Endpoints.LeaveEvent, new UserEvents()
         {
-            UserId = _user.Id,
+            UserId = User.Id,
             SportEventId = SportEvent!.Id,
             SportEvent = SportEvent.ToShared(""),
-            User = _user
+            User = User
         });
 
         var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
         if (success)
         {
             SportEvent.Type = RelationshipType.None;
+            if (PeopleInEvent?.Remove(User) == true)
+                --PeopleInEventCount;
             try
             {
                 await SportEventChanged.InvokeAsync(SportEvent);
             }
-            catch (Exception e){}
+            catch (Exception e)
+            {
+                // ignored
+            }
         }
     }
 
@@ -153,10 +160,10 @@
     {
         var responseMessage = await http.PostAsJsonAsync<UserEvents>(Endpoints.JoinEvent, new UserEvents()
         {
-            UserId = _user.Id,
+            UserId = User.Id,
             SportEventId = SportEvent!.Id,
             SportEvent = SportEvent.ToShared(""),
-            User = _user
+            User = User
         });
 
         var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
@@ -164,11 +171,16 @@
         if (success)
         {
             SportEvent.Type = RelationshipType.Joined;
+            PeopleInEvent?.Add(User);
+            ++PeopleInEventCount;
             try
             {
                 await SportEventChanged.InvokeAsync(SportEvent);
             }
-            catch (Exception e){}
+            catch (Exception e)
+            {
+                // ignored
+            }
         }
     }
 }
