@@ -39,16 +39,17 @@ namespace TeamFinder.Server.Controllers
         }
 
         [HttpPost(Endpoints.GetAllUsersInEvent)]
-        public async Task<List<SportEvent>> GetAllUsersInEvent([FromBody] Guid eventId)
+        public async Task<List<UserEvents>> GetAllUsersInEvent([FromBody] Guid eventId)
         {
-            var a = _mapper.Map<List<SportEvent>>(await _userEventsRepository.FindUserEventsByEvent(eventId));
+            var a = _mapper.Map<List<UserEvents>>(await _userEventsRepository.FindUserEventsByEvent(eventId));
             return a;
         }
+
         [AllowAnonymous]
         [HttpPost(Endpoints.GetUserEvents)]
-        public async Task<List<Models.UserEvents>> FindUserEvents([FromBody] UserEventsRequest request)
+        public async Task<List<UserEvents>> FindUserEvents([FromBody] UserEventsRequest request)
         {
-            var a = _mapper.Map<List<Models.UserEvents>>(await _userEventsRepository.FindUserEventsByUser(request.UserId, (RelationshipType?)request.Type));
+            var a = _mapper.Map<List<UserEvents>>(await _userEventsRepository.FindUserEventsByUser(request.UserId, (RelationshipType?)request.Type));
             return a;
         }
         

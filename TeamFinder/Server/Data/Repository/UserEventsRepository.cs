@@ -21,13 +21,13 @@ public class UserEventsRepository : RepositoryBase<UserEvents>
             .ToList();
     }
     
-    public async Task<List<Models.SportEvent>> FindUserEventsByEvent(Guid eventId)
+    public async Task<List<UserEvents>> FindUserEventsByEvent(Guid eventId)
     {
         return (await DbContext.UserEvents
                 .Include(ev => ev.User)
+                .Include(ev => ev.SportEvent)
                 .Where(e => e.SportEventId == eventId)
                 .ToListAsync())
-            .Select(events => events.SportEvent)
             .ToList();
     }
 

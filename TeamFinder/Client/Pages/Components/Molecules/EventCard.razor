@@ -18,6 +18,7 @@
         </MatHeadline6>
         <MatSubtitle2 class="demo-mat-card-clean-margin">
             @SportEvent?.Date.ToShortDateString()
+            <MatButton Icon="face" OnClick="@OnPlayersExpand">People (@PeopleInEventCount)</MatButton>
         </MatSubtitle2>
     </div>
     <MatCardContent @onclick="OnEventClick">
@@ -48,6 +49,21 @@
         </MatCardActionIcons>
     </MatCardActions>
 </MatCard>
+<MatDialog @bind-IsOpen="@PlayersExpanded">
+                <MatDialogTitle>People</MatDialogTitle>
+    <MatDialogContent>
+        @if (PeopleInEvent is not null)
+        {
+            @for (int i = 0; i< PeopleInEvent.Count; i++)
+            {
+                <p>@i. @PeopleInEvent[i].UserName</p>
+            }
+        }
+    </MatDialogContent>
+                <MatDialogActions>
+                    <MatButton OnClick="@(e => { PlayersExpanded = false; })">Close</MatButton>
+                </MatDialogActions>
+            </MatDialog>
 <MatDialog @bind-IsOpen="@DialogIsOpen">
     <MatDialogTitle>Hi</MatDialogTitle>
     <MatDialogContent>
@@ -67,9 +83,11 @@
 </MatDialog>
 @code
 {
+    public bool PlayersExpanded { get; set; }
     private User _user = new User();
     private SportEvent? _sportEvent;
-
+    public int PeopleInEventCount { get; set; }
+    public List<User>? PeopleInEvent { get; set; }
     [Parameter]
     public SportEvent? SportEvent
     {
@@ -93,11 +111,20 @@
     {
         DialogIsOpen = true;
     }
-    
+
+    private void OnPlayersExpand(MouseEventArgs e)
+    {
+        PlayersExpanded = !PlayersExpanded;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         State = await provider.GetAuthenticationStateAsync();
         _user.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+        var aaa = await http.PostAsJsonAsync(Endpoints.GetAllUsersInEvent, SportEvent?.Id);
+        var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
+        PeopleInEventCount = userEvents?.Count() ?? 0;
+        PeopleInEvent = userEvents?.Select(ue => ue.User).ToList();
     }
 
     private async void OnUserClickLeaveEvent(MouseEventArgs obj)
