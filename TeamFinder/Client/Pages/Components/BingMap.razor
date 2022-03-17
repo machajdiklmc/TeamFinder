@@ -7,11 +7,17 @@
 </MatPaper>
 @code {
 
+    [Parameter, EditorRequired]
+    public string? Latitude { get; set; }
+
+    [Parameter, EditorRequired]
+    public string? Longitude { get; set; }
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (Latitude is not null && Longitude is not null)
         {
-            await JSRuntime.InvokeVoidAsync("loadBingMap", null);
+            await JSRuntime.InvokeVoidAsync("loadBingMap", Latitude, Longitude);
         }
     }
 

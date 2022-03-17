@@ -4,20 +4,38 @@
 @using Microsoft.AspNetCore.WebUtilities
 
 @inject HttpClient http
-@inject NavigationManager NavigationManager
 
 <h3>EventDetails - @SportEvent?.Name</h3>
-<BingMap></BingMap>
+@if (SportEvent != null)
+{
+    <BingMap Latitude="50" Longitude="45"></BingMap>
+}
+else
+{
+    @Message
+}
 @code {
 
     SportEvent? SportEvent { get; set; }
-
+    public string Message { get; set; } = "Loading...";
     [Parameter]
     public string SportEventId { get; set; } = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        var aaa = await http.PostAsJsonAsync(Endpoints.GetEvent, SportEventId);
-        SportEvent = await aaa.Content.ReadFromJsonAsync<SportEvent>();
+        try
+        {
+            var aaa = await http.PostAsJsonAsync(Endpoints.GetEvent, SportEventId);
+            SportEvent = await aaa.Content.ReadFromJsonAsync<SportEvent?>();
+        }
+        catch (Exception e)
+        {
+            //ignore
+        }
+        finally
+        {
+            if (SportEvent == null)
+                Message = "Event not found";
+        }
     }
 }
