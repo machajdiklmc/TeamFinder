@@ -7,7 +7,7 @@ using TeamFinder.Client.Repository;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
+//builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddHttpClient("TeamFinder.ServerAPI", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
     .AddHttpMessageHandler<BaseAddressAuthorizationMessageHandler>();
@@ -18,4 +18,11 @@ builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().Cre
 builder.Services.AddApiAuthorization();
 builder.Services.AddMatBlazor();
 builder.Services.AddTransient<UserRepository>();
+/*builder.Services.AddSingleton(p =>
+    {
+        var config = p.GetService<IConfiguration>();
+        var a = config.GetSection("App").Get<Configuration>();
+        return a;
+    });*/
+//string serverlessBaseURI = builder.Configuration["ServerlessBaseURI"];
 await builder.Build().RunAsync();

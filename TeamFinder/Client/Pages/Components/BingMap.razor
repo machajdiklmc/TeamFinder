@@ -1,12 +1,11 @@
 ﻿@using MatBlazor
 @inject IJSRuntime JSRuntime
-@inject Task<Configuration> _configuration
 
 <MatPaper Outlined="true" Rounded="true">
     <div id="map" style="@($"height:{Height}px")"></div>
 </MatPaper>
 <HeadContent>
-    <meta name="description" content="@Configuration?.BingAPIKey">
+
 </HeadContent>
 
 @code {
@@ -20,16 +19,15 @@
     [Parameter, EditorRequired]
     public int Height { get; set; } = 250;
 
-    Configuration? Configuration;
+    //Configuration? Configuration;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         try
         {
-
-            Configuration = await _configuration;
+            
             if (Latitude is not null && Longitude is not null)
             {
-                await JSRuntime.InvokeVoidAsync("loadBingMap", Latitude, Longitude, Configuration.BingAPIKey);
+                await JSRuntime.InvokeVoidAsync("loadBingMap", Latitude, Longitude);
             }
         }
         catch (Exception e)
