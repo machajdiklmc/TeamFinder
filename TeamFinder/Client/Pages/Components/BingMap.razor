@@ -1,23 +1,40 @@
 ﻿@using MatBlazor
 @inject IJSRuntime JSRuntime
+@inject Task<Configuration> _configuration
 
-<MatPaper Outlined="true">
-    <div id="map" style="height:500px;width:95%;">
-    </div>
+<MatPaper Outlined="true" Rounded="true">
+    <div id="map" style="@($"height:{Height}px")"></div>
 </MatPaper>
+<HeadContent>
+    <meta name="description" content="@Configuration?.BingAPIKey">
+</HeadContent>
+
 @code {
 
     [Parameter, EditorRequired]
-    public string? Latitude { get; set; }
+    public double? Latitude { get; set; }
 
     [Parameter, EditorRequired]
-    public string? Longitude { get; set; }
-    
+    public double? Longitude { get; set; }
+
+    [Parameter, EditorRequired]
+    public int Height { get; set; } = 250;
+
+    Configuration? Configuration;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (Latitude is not null && Longitude is not null)
+        try
         {
-            await JSRuntime.InvokeVoidAsync("loadBingMap", Latitude, Longitude);
+
+            Configuration = await _configuration;
+            if (Latitude is not null && Longitude is not null)
+            {
+                await JSRuntime.InvokeVoidAsync("loadBingMap", Latitude, Longitude, Configuration.BingAPIKey);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 
