@@ -54,7 +54,7 @@ namespace TeamFinder.Server.Controllers
 
         [AllowAnonymous]
         [HttpPost(Endpoints.GetUserEvents)]
-        public async Task<List<UserEvents>> FindUserEvents([FromBody] UserEventsRequest request)
+        public async Task<List<UserEvents>> FindUserEvents([FromBody] GetUserEventsRequest request)
         {
             var a = _mapper.Map<List<UserEvents>>(await _userEventsRepository.FindUserEventsByUser(request.UserId, (RelationshipType?)request.Type));
             return a;
@@ -70,16 +70,16 @@ namespace TeamFinder.Server.Controllers
 
         [AllowAnonymous]
         [HttpPost(Endpoints.JoinEvent)]
-        public async Task<bool> JoinEvent([FromBody] UserEvents userEvent)
+        public async Task<bool> JoinEvent([FromBody] UserEventsRequest userEventRequest)
         {
-            return await _userEventsRepository.JoinEvent(userEvent.UserId, userEvent.SportEventId, RelationshipType.Joined);
+            return await _userEventsRepository.JoinEvent(userEventRequest.UserId, userEventRequest.SportEventId, RelationshipType.Joined);
         }
 
         [AllowAnonymous]
         [HttpPost(Endpoints.LeaveEvent)]
-        public async Task<bool> LeaveEvent([FromBody] UserEvents userEvent)
+        public async Task<bool> LeaveEvent([FromBody] UserEventsRequest userEventRequest)
         {
-            return await _userEventsRepository.LeaveEvent(userEvent.UserId, userEvent.SportEventId);
+            return await _userEventsRepository.LeaveEvent(userEventRequest.UserId, userEventRequest.SportEventId);
         }
     }
 }

@@ -1,8 +1,7 @@
-﻿function loadBingMap(latitude, longitude) {
-    var map = new Microsoft.Maps.Map(document.getElementById('map'), {
-        center: new Microsoft.Maps.Location(latitude, longitude),
-    });
-    var pushpin = new Microsoft.Maps.Pushpin(map.getCenter(), null);
-    map.entities.push(pushpin);
-    return "";
+﻿function createMap(lat,lon,id) {
+    Loader.async = true;
+    Loader.load(null, null, createMap);
+    var center = SMap.Coords.fromWGS84(14.41790, 50.12655);
+    var m = new SMap(JAK.gel(id), center, 13);
+    m.addDefaultLayer(SMap.DEF_BASE).enable();
 }

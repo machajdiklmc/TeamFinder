@@ -1,12 +1,10 @@
 ﻿@using MatBlazor
 @using TeamFinder.Shared
 @using TeamFinder.Shared.Models
-@using TeamFinder.Client.Pages.Models
 @using System.Net
 @using IdentityModel
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Diagnostics
-@using SportEvent = TeamFinder.Client.Pages.Models.SportEvent
 
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider provider
@@ -15,7 +13,10 @@
 <MatCard class="demo-mat-card">
     <div class="demo-mat-card-content">
         <MatHeadline6 class="demo-mat-card-clean-margin" @onclick="OnEventClick">
-            @SportEvent?.Name
+            @if (SportEvent is not null)
+            {
+                <BingMap Height="200" SportEvent="@SportEvent" UniqueId="@IsOnIndex"></BingMap>
+            }
         </MatHeadline6>
         <MatSubtitle2 class="demo-mat-card-clean-margin">
             @SportEvent?.Date.ToShortDateString()
@@ -87,6 +88,11 @@
 
     [Parameter]
     public User User { get; set; } = new User();
+
+    public string UserId { get; set; }
+    
+    [Parameter]
+    public int IsOnIndex { get; set; }
     private SportEvent _sportEvent = null!;
     int PeopleInEventCount { get; set; }
     List<User>? PeopleInEvent { get; set; }
@@ -127,7 +133,8 @@
     protected override async Task OnInitializedAsync()
     {
         State = await provider.GetAuthenticationStateAsync();
-        User ??= new User() {Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value};
+        var userId = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+        if (userId != null) UserId = userId;
         var aaa = await http.PostAsJsonAsync(Endpoints.GetAllUsersInEvent, SportEvent?.Id);
         var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
         PeopleInEventCount = userEvents?.Count() ?? 0;
@@ -136,13 +143,7 @@
 
     private async void OnUserClickLeaveEvent(MouseEventArgs obj)
     {
-        var responseMessage = await http.PostAsJsonAsync<UserEvents>(Endpoints.LeaveEvent, new UserEvents()
-        {
-            UserId = User.Id,
-            SportEventId = SportEvent!.Id,
-            SportEvent = SportEvent.ToShared(""),
-            User = User
-        });
+        var responseMessage = await http.PostAsJsonAsync(Endpoints.LeaveEvent, new UserEventsRequest(UserId,SportEvent.Id));
 
         var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
         if (success)
@@ -163,13 +164,7 @@
 
     private async void OnUserClickJoinEvent(MouseEventArgs obj)
     {
-        var responseMessage = await http.PostAsJsonAsync<UserEvents>(Endpoints.JoinEvent, new UserEvents()
-        {
-            UserId = User.Id,
-            SportEventId = SportEvent!.Id,
-            SportEvent = SportEvent.ToShared(""),
-            User = User
-        });
+        var responseMessage = await http.PostAsJsonAsync(Endpoints.JoinEvent, new UserEventsRequest(UserId,SportEvent.Id));
 
         var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
 

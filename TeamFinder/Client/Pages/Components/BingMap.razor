@@ -1,37 +1,61 @@
 ﻿@using MatBlazor
+@using Microsoft.Extensions.Options
+@using TeamFinder.Shared.Models
 @inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
+@inject IOptions<BingOptions> bing
 
-<MatPaper Outlined="true" Rounded="true">
-    <div id="map" style="@($"height:{Height}px")"></div>
-</MatPaper>
 <HeadContent>
 
 </HeadContent>
 
+<MatPaper Outlined="true" Rounded="true">
+    <div id="@UniqueId" style="@($"height:{Height}px;")"></div>
+    <script suppress-error="BL9992" type="text/javascript">Loader.load();</script>
+    <script suppress-error="BL9992" type="text/javascript">
+    	Loader.async = true;
+        
+    		var stred = SMap.Coords.fromWGS84(14.41, 50.08);
+    		var mapa = new SMap(JAK.gel('@UniqueId'), stred, 10);
+    		mapa.addDefaultLayer(SMap.DEF_BASE).enable();
+    		mapa.addDefaultControls();	      	      
+    </script>
+</MatPaper>
+
 @code {
-
     [Parameter, EditorRequired]
-    public double? Latitude { get; set; }
+    public int Height { get; set; } 
 
-    [Parameter, EditorRequired]
-    public double? Longitude { get; set; }
+    [Parameter]
+    public SportEvent SportEvent { get; set; }
 
-    [Parameter, EditorRequired]
-    public int Height { get; set; } = 250;
-
+    [Parameter]
+    public int UniqueId { get; set; }
     //Configuration? Configuration;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+    
+       // SportEvent.OnCountIdChanged += SportEventOnOnCountIdChanged;
+        await SportEventOnOnCountIdChanged();
+    }
+
+    private async Task SportEventOnOnCountIdChanged()
+    {
         try
         {
-            
-            if (Latitude is not null && Longitude is not null)
-            {
-                await JSRuntime.InvokeVoidAsync("loadBingMap", Latitude, Longitude);
-            }
+          /*  if (SportEvent.CountId is null)
+                UniqueId = "map";
+            else
+                UniqueId = "map" + SportEvent.CountId;*/
+
+            Console.WriteLine(UniqueId);
+
+            //await JSRuntime.InvokeVoidAsync("load");
+            //await JSRuntime.InvokeVoidAsync("createMap", timeout: TimeSpan.FromMilliseconds(1000), SportEvent.Latitude, SportEvent.Longitude, UniqueId);
         }
         catch (Exception e)
         {
+            Console.WriteLine(UniqueId);
             Console.WriteLine(e);
         }
     }

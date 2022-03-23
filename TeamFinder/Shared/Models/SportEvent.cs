@@ -15,6 +15,24 @@ namespace TeamFinder.Shared.Models
         public RelationshipType Type { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+        private int? _countId = null;
+
+        public int? CountId
+        {
+            get => _countId;
+            set
+            {
+                if (_countId != value)
+                {
+                    _countId = value;
+                    OnCountIdChanged?.Invoke();
+                }
+            }
+        }
+
+        public delegate void CountIdChange();  // delegate
+
+        public event CountIdChange OnCountIdChanged;
         public SportEvent(string name, DateTime date, string description)
         {
             Name = name;
