@@ -5,20 +5,12 @@
 @inject IConfiguration Configuration
 @inject IOptions<BingOptions> bing
 
-<HeadContent>
-
-</HeadContent>
 
 <MatPaper Outlined="true" Rounded="true">
-    <div id="@UniqueId" style="@($"height:{Height}px;")"></div>
-    <script suppress-error="BL9992" type="text/javascript">Loader.load();</script>
+    <div id="map" style="@($"height:{Height}px;")"></div>
+
     <script suppress-error="BL9992" type="text/javascript">
-    	Loader.async = true;
-        
-    		var stred = SMap.Coords.fromWGS84(14.41, 50.08);
-    		var mapa = new SMap(JAK.gel('@UniqueId'), stred, 10);
-    		mapa.addDefaultLayer(SMap.DEF_BASE).enable();
-    		mapa.addDefaultControls();	      	      
+        Loader.async = true;      	      
     </script>
 </MatPaper>
 
@@ -28,18 +20,27 @@
 
     [Parameter]
     public SportEvent SportEvent { get; set; }
+    
+    [Parameter]
+    public bool IsSimpleMap { get; set; }
 
     [Parameter]
     public int UniqueId { get; set; }
     //Configuration? Configuration;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-    
-       // SportEvent.OnCountIdChanged += SportEventOnOnCountIdChanged;
-        await SportEventOnOnCountIdChanged();
+        if (IsSimpleMap)
+            await DrawSimpleMap();
+        else
+            await DrawMap();
     }
 
-    private async Task SportEventOnOnCountIdChanged()
+    private async Task DrawSimpleMap()
+    {
+        await JSRuntime.InvokeVoidAsync("simpleMap", SportEvent.Longitude, SportEvent.Latitude,UniqueId);
+    }
+
+    private async Task DrawMap()
     {
         try
         {
@@ -49,9 +50,9 @@
                 UniqueId = "map" + SportEvent.CountId;*/
 
             Console.WriteLine(UniqueId);
-
+            await JSRuntime.InvokeVoidAsync("initMap", SportEvent.Longitude, SportEvent.Latitude);
             //await JSRuntime.InvokeVoidAsync("load");
-            //await JSRuntime.InvokeVoidAsync("createMap", timeout: TimeSpan.FromMilliseconds(1000), SportEvent.Latitude, SportEvent.Longitude, UniqueId);
+            
         }
         catch (Exception e)
         {

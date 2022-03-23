@@ -1,7 +1,20 @@
-﻿function createMap(lat,lon,id) {
-    Loader.async = true;
-    Loader.load(null, null, createMap);
-    var center = SMap.Coords.fromWGS84(14.41790, 50.12655);
-    var m = new SMap(JAK.gel(id), center, 13);
-    m.addDefaultLayer(SMap.DEF_BASE).enable();
+﻿function initMap(long,lat)
+{
+    var center = SMap.Coords.fromWGS84(long, lat);
+    var map = new SMap(JAK.gel('map'), center, 12);
+    map.addDefaultLayer(SMap.DEF_BASE).enable();
+    map.addDefaultControls();
+
+    var layer = new SMap.Layer.Marker();
+    map.addLayer(layer);
+    layer.enable();
+
+    var options = {};
+    var marker = new SMap.Marker(center, "myMarker", options);
+    layer.addMarker(marker);
+}
+
+function simpleMap(long,lat,uniqueId)
+{
+    
 }
