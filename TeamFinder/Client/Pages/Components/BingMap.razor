@@ -7,7 +7,7 @@
 
 
 <MatPaper Outlined="true" Rounded="true">
-    <div id="map" style="@($"height:{Height}px;")"></div>
+    <div id="@UniqueId" style="@($"height:{Height}px;")"></div>
 
     <script suppress-error="BL9992" type="text/javascript">
         Loader.async = true;      	      
@@ -29,10 +29,13 @@
     //Configuration? Configuration;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (IsSimpleMap)
-            await DrawSimpleMap();
-        else
-            await DrawMap();
+        if (firstRender)
+        {
+            if (IsSimpleMap)
+                await DrawSimpleMap();
+            else
+                await DrawMap();
+        }
     }
 
     private async Task DrawSimpleMap()
@@ -50,7 +53,7 @@
                 UniqueId = "map" + SportEvent.CountId;*/
 
             Console.WriteLine(UniqueId);
-            await JSRuntime.InvokeVoidAsync("initMap", SportEvent.Longitude, SportEvent.Latitude);
+            await JSRuntime.InvokeVoidAsync("initMap", SportEvent.Longitude, SportEvent.Latitude, UniqueId);
             //await JSRuntime.InvokeVoidAsync("load");
             
         }
