@@ -7,14 +7,15 @@
 
 
 <MatPaper Outlined="true" Rounded="true">
-    <div id="@UniqueId" style="@($"height:{Height}px;")"></div>
+    <div id="@GetUniqueId(Id)" style="@($"height:{Height}px;")"></div>
 
     <script suppress-error="BL9992" type="text/javascript">
         Loader.async = true;      	      
     </script>
 </MatPaper>
 
-@code {
+@code { string GetUniqueId(int id) => Id == -1 ? "map" : "map-" + Convert.ToString(Id);
+
     [Parameter, EditorRequired]
     public int Height { get; set; } 
 
@@ -23,9 +24,9 @@
     
     [Parameter]
     public bool IsSimpleMap { get; set; }
-
+    
     [Parameter]
-    public int UniqueId { get; set; }
+    public int Id { get; set; }
     //Configuration? Configuration;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -40,28 +41,12 @@
 
     private async Task DrawSimpleMap()
     {
-        await JSRuntime.InvokeVoidAsync("simpleMap", SportEvent.Longitude, SportEvent.Latitude,UniqueId);
+        await JSRuntime.InvokeVoidAsync("simpleMap", SportEvent.Longitude, SportEvent.Latitude,GetUniqueId(Id));
     }
 
     private async Task DrawMap()
     {
-        try
-        {
-          /*  if (SportEvent.CountId is null)
-                UniqueId = "map";
-            else
-                UniqueId = "map" + SportEvent.CountId;*/
-
-            Console.WriteLine(UniqueId);
-            await JSRuntime.InvokeVoidAsync("initMap", SportEvent.Longitude, SportEvent.Latitude, UniqueId);
-            //await JSRuntime.InvokeVoidAsync("load");
-            
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(UniqueId);
-            Console.WriteLine(e);
-        }
+        await JSRuntime.InvokeVoidAsync("initMap", SportEvent.Longitude, SportEvent.Latitude, GetUniqueId(Id));
     }
 
 }
