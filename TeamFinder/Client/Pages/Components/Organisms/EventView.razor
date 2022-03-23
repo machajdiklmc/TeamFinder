@@ -2,9 +2,9 @@
 @using TeamFinder.Shared
 @using IdentityModel
 @using TeamFinder.Client.Repository
-@inject HttpClient http
-@inject UserRepository userRepository
-@inject AuthenticationStateProvider provider
+@inject HttpClient _http
+@inject UserRepository _userRepository
+@inject AuthenticationStateProvider _provider
 
 <div class="mat-layout-grid">
     @if (SportEvents != null)
@@ -13,7 +13,7 @@
         @for (var i = RealRange.Item1; i < RealRange.Item2 && i < SportEvents.Count(); i++)
         {
             <div class="mat-layout-grid-cell-span-4">
-                <EventCard User="@User" @bind-SportEvent="@SportEvents[i]" IsOnIndex=@i/>
+                <EventCard User="@User" @bind-SportEvent="@SportEvents[i]" IsOnIndex=@i></EventCard>
             </div>
         }
         </div>
@@ -25,7 +25,7 @@
     [Parameter]
     public List<SportEvent>? SportEvents { get; set; }
 
-    public AuthenticationState? State { get; set; }
+    AuthenticationState? State { get; set; }
     private User User { get; set; } = new User();
 
     [Parameter]
@@ -50,16 +50,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        State = await provider.GetAuthenticationStateAsync();
+        State = await _provider.GetAuthenticationStateAsync();
         User.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
-        User = await userRepository.GetUser(User.Id!);
+        User = await _userRepository.GetUser(User.Id!);
         SportEvents?.ForEach(e => e.Type = RelationshipType.None);
         for (int i = 0; i < SportEvents.Count; i++)
         {
             SportEvents[i].Type = RelationshipType.None;
             SportEvents[i].CountId = i+1;
         }
-        var aaa = await http.PostAsJsonAsync(Endpoints.GetUserEvents, new GetUserEventsRequest(User.Id, null));
+        var aaa = await _http.PostAsJsonAsync(Endpoints.GetUserEvents, new GetUserEventsRequest(User.Id, null));
         var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
 
         foreach (var ev in userEvents!)

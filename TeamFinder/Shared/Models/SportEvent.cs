@@ -13,8 +13,7 @@ namespace TeamFinder.Shared.Models
         public DateTime Date { get; set; }
         public string OwnerId { get; set; }
         public RelationshipType Type { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public SportEventLocation Location { get; set; }
         private int? _countId = null;
 
         public int? CountId

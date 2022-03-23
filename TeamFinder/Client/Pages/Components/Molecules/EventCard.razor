@@ -11,30 +11,28 @@
 @inject HttpClient http
 
 <MatCard class="demo-mat-card">
-    <div class="demo-mat-card-content">
-        <MatHeadline6 class="demo-mat-card-clean-margin" @onclick="OnEventClick">
-            @if (SportEvent is not null)
-            {
-                <BingMap Height="200" SportEvent="@SportEvent" Id="@(IsOnIndex+1)" IsSimpleMap="true"></BingMap>
-            }
-        </MatHeadline6>
-        <MatSubtitle2 class="demo-mat-card-clean-margin">
-            @SportEvent?.Date.ToShortDateString()
-            <MatButton Icon="face" OnClick="@OnPlayersExpand">People (@PeopleInEventCount)</MatButton>
-        </MatSubtitle2>
-    </div>
     <MatCardContent @onclick="@OnEventRedirect">
-        <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin" style="padding: 6px;">
+        <div class="demo-mat-card-content">
+            <BingMap Height="200" SportEvent="@SportEvent" Id="@(IsOnIndex + 1)" IsSimpleMap="true"></BingMap>
+            <MatHeadline6 class="demo-mat-card-clean-margin">
+                @SportEvent.Name
+            </MatHeadline6>
+            <MatSubtitle2 class="demo-mat-card-clean-margin">
+                @SportEvent.Date.ToShortDateString()
+            </MatSubtitle2>
+
+            <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin" style="padding: 6px;">
             @SportEvent?.Description
         </MatBody2>
+        </div>
     </MatCardContent>
     <MatCardActions>
         <MatCardActionButtons>
-            @if (SportEvent is not null && SportEvent.Type == RelationshipType.Owner)
+            @if (SportEvent.Type == RelationshipType.Owner)
             {
                 <MatButton Disabled="true">Owner</MatButton>  
             }
-            else if (SportEvent is not null && SportEvent.Type == RelationshipType.Joined)
+            else if (SportEvent.Type == RelationshipType.Joined)
             {
                 <MatButton @onclick="OnUserClickLeaveEvent">Leave</MatButton>
             }
@@ -42,11 +40,10 @@
             {
                 <MatButton @onclick="OnUserClickJoinEvent">Join</MatButton>  
             }
-            
         </MatCardActionButtons>
  
         <MatCardActionIcons>
-            <MatIconButton Icon="@MatIconNames.Favorite"></MatIconButton>
+            <MatButton Icon="@MatIconNames.People" OnClick="@OnPlayersExpand">People (@PeopleInEventCount)</MatButton>
         </MatCardActionIcons>
     </MatCardActions>
 </MatCard>
@@ -65,23 +62,6 @@
                     <MatButton OnClick="@(e => { PlayersExpanded = false; })">Close</MatButton>
                 </MatDialogActions>
             </MatDialog>
-<MatDialog @bind-IsOpen="@DialogIsOpen">
-    <MatDialogTitle>Hi</MatDialogTitle>
-    <MatDialogContent>
-        <p>What's your favorite animal?</p>
-        <MatSelect TValue="string" Label="Title">
-            <MatOptionString ></MatOptionString>
-            <MatOptionString Value="dr">Dr.</MatOptionString>
-            <MatOptionString Value="prof">Prof.</MatOptionString>
-        </MatSelect>
-
-
-    </MatDialogContent>
-    <MatDialogActions>
-        <MatButton OnClick="@(e => { DialogIsOpen = false; })">No Thanks</MatButton>
-        <MatButton OnClick="@(e => { DialogIsOpen = false; })">Ok just close</MatButton>
-    </MatDialogActions>
-</MatDialog>
 @code
 {
     public bool PlayersExpanded { get; set; }
@@ -113,12 +93,6 @@
     public EventCallback<SportEvent> SportEventChanged { get; set; }
 
     public AuthenticationState? State { get; set; }
-    
-    private bool DialogIsOpen { get; set; }
-    private void OnEventClick(MouseEventArgs obj)
-    {
-        DialogIsOpen = true;
-    }
 
     private void OnEventRedirect()
     {

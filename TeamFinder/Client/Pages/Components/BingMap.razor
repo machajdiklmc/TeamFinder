@@ -3,8 +3,6 @@
 @using TeamFinder.Shared.Models
 @inject IJSRuntime JSRuntime
 @inject IConfiguration Configuration
-@inject IOptions<BingOptions> bing
-
 
 <MatPaper Outlined="true" Rounded="true">
     <div id="@GetUniqueId(Id)" style="@($"height:{Height}px;")"></div>
@@ -41,12 +39,12 @@
 
     private async Task DrawSimpleMap()
     {
-        await JSRuntime.InvokeVoidAsync("simpleMap", SportEvent.Longitude, SportEvent.Latitude,GetUniqueId(Id));
+        await JSRuntime.InvokeVoidAsync("simpleMap", SportEvent.Location.Longitude, SportEvent.Location.Latitude,GetUniqueId(Id));
     }
 
     private async Task DrawMap()
     {
-        await JSRuntime.InvokeVoidAsync("initMap", SportEvent.Longitude, SportEvent.Latitude, GetUniqueId(Id));
+        await JSRuntime.InvokeVoidAsync("initMap", SportEvent.Location.Longitude, SportEvent.Location.Latitude, GetUniqueId(Id));
     }
 
 }

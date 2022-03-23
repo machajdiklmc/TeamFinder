@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.Options;
 using TeamFinder.Server.Models;
-
 namespace TeamFinder.Server.Data
 {
     public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>
     {
         public DbSet<SportEvent> Events { get; set; }
+        public DbSet<SportEventLocation> SportEventLocation { get; set; }
         public DbSet<UserEvents> UserEvents { get; set; }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public ApplicationDbContext(

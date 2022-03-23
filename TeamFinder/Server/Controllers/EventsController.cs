@@ -35,7 +35,7 @@ namespace TeamFinder.Server.Controllers
         [HttpGet(Endpoints.GetAllEvents)]
         public async Task<List<SportEvent>> Get()
         {
-            return _mapper.Map<List<SportEvent>>(await _eventRepository.GetAll());
+            return _mapper.Map<List<SportEvent>>(await _eventRepository.GetAllEvents());
         }
 
         [HttpPost(Endpoints.GetAllUsersInEvent)]

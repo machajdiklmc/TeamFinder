@@ -4,13 +4,11 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>9154ad35-f427-4453-829f-d3c81dbae2d8</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DotNetEnv" Version="2.3.0" />
     <PackageReference Include="IdentityModel" Version="5.1.0" />
-    <PackageReference Include="leaflet" Version="0.7.3" />
     <PackageReference Include="MatBlazor" Version="2.8.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0" PrivateAssets="all" />
@@ -29,12 +27,6 @@
   <ItemGroup>
     <Folder Include="Pages\Components\Atoms\" />
     <Folder Include="Pages\Models" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="..\..\.run\TeamFinder.Client_ IIS Express.run.xml">
-      <Link>TeamFinder.Client_ IIS Express.run.xml</Link>
-    </Content>
   </ItemGroup>
 
 </Project>
