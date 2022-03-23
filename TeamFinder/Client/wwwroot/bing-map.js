@@ -12,6 +12,16 @@
     var options = {};
     var marker = new SMap.Marker(center, "myMarker", options);
     layer.addMarker(marker);
+    
+    var pointer = new SMap.Control.Pointer({
+        type: SMap.Control.Pointer.TYPES.RED,
+        snapHUDtoScreen: 20
+    });
+    pointer.addListener("pointer-click", function() {
+        map.setCenter(SMap.Coords.fromWGS84(long, lat),true);
+    }, pointer);
+    map.addControl(pointer);
+    pointer.setCoords(SMap.Coords.fromWGS84(long, lat));
 }
 
 function simpleMap(long,lat,uniqueId)
