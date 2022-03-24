@@ -66,13 +66,16 @@
 <MatDialog @bind-IsOpen="@PlayersExpanded">
                 <MatDialogTitle>People</MatDialogTitle>
     <MatDialogContent>
-        @if (PeopleInEvent is not null)
+        <MatList>
+        @for (int i = 0; i < PeopleInEventCount; i++)
         {
-            @for (var i = 0; i< PeopleInEvent.Count; i++)
-            {
-                <p>@i. @PeopleInEvent[i].UserName</p>
-            }
+            var i1 = i;
+
+            <MatCaption>
+                <b>@(i1 + 1).</b> @PeopleInEvent[i1].UserName<br>
+            </MatCaption>
         }
+        </MatList>
     </MatDialogContent>
                 <MatDialogActions>
                     <MatButton OnClick="@(e => { PlayersExpanded = false; })">Close</MatButton>
@@ -85,30 +88,21 @@
     [Parameter]
     public User User { get; set; } = new User();
 
-    public string UserId { get; set; }
+    string UserId { get; set; }
     
     [Parameter]
     public int IsOnIndex { get; set; }
-    private SportEvent _sportEvent = null!;
-    int PeopleInEventCount { get; set; }
-    List<User>? PeopleInEvent { get; set; }
-    [Parameter, EditorRequired]
-    public SportEvent SportEvent
-    {
-        get => _sportEvent;
-        set
-        {
-            if (_sportEvent == value) return;
-            _sportEvent = value;
-            SportEventChanged.InvokeAsync(value);
-        }
 
-    }
+    int PeopleInEventCount { get; set; }
+    List<User> PeopleInEvent { get; set; } = new List<User>();
+    
+    [Parameter]
+    public SportEvent SportEvent { get; set; } = null!;
 
     [Parameter]
     public EventCallback<SportEvent> SportEventChanged { get; set; }
 
-    public AuthenticationState? State { get; set; }
+    AuthenticationState? State { get; set; }
 
     private void OnEventRedirect()
     {
@@ -125,52 +119,54 @@
         State = await provider.GetAuthenticationStateAsync();
         var userId = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
         if (userId != null) UserId = userId;
-        var aaa = await http.PostAsJsonAsync(Endpoints.GetAllUsersInEvent, SportEvent?.Id);
+        var aaa = await http.PostAsJsonAsync(Endpoints.GetAllUsersInEvent, SportEvent.Id);
         var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
-        PeopleInEventCount = userEvents?.Count() ?? 0;
-        PeopleInEvent = userEvents?.Select(ue => ue.User).ToList();
+        PeopleInEventCount = userEvents?.Count ?? 0;
+        
+        if (userEvents != null)
+            PeopleInEvent = userEvents.Select(ue => ue.User).ToList();
     }
 
-    private async void OnUserClickLeaveEvent(MouseEventArgs obj)
+    private async Task OnUserClickLeaveEvent(MouseEventArgs obj)
     {
         var responseMessage = await http.PostAsJsonAsync(Endpoints.LeaveEvent, new UserEventsRequest(UserId,SportEvent.Id));
 
         var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
-        if (success)
+        if (!success) return;
+        SportEvent.Type = RelationshipType.None;
+
+        try
         {
-            SportEvent.Type = RelationshipType.None;
-            if (PeopleInEvent?.Remove(User) == true)
-                --PeopleInEventCount;
-            try
-            {
-                await SportEventChanged.InvokeAsync(SportEvent);
-            }
-            catch (Exception e)
-            {
-                // ignored
-            }
+            await SportEventChanged.InvokeAsync(SportEvent);
         }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        
+        if (PeopleInEvent.Remove(User) == true)
+            --PeopleInEventCount;
     }
 
-    private async void OnUserClickJoinEvent(MouseEventArgs obj)
+    private async Task OnUserClickJoinEvent(MouseEventArgs obj)
     {
         var responseMessage = await http.PostAsJsonAsync(Endpoints.JoinEvent, new UserEventsRequest(UserId,SportEvent.Id));
-
+        
         var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
 
-        if (success)
+        if (success == false) 
+            return;
+        
+        SportEvent.Type = RelationshipType.Joined;
+        PeopleInEvent.Add(User);
+        ++PeopleInEventCount;
+        try
         {
-            SportEvent.Type = RelationshipType.Joined;
-            PeopleInEvent?.Add(User);
-            ++PeopleInEventCount;
-            try
-            {
-                await SportEventChanged.InvokeAsync(SportEvent);
-            }
-            catch (Exception e)
-            {
-                // ignored
-            }
+            await SportEventChanged.InvokeAsync(SportEvent);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
         }
     }
 }
