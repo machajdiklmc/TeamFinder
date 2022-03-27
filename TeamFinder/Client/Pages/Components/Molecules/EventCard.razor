@@ -59,7 +59,7 @@
         </MatCardActionButtons>
  
         <MatCardActionIcons>
-            <MatButton Icon="@MatIconNames.People" OnClick="@OnPlayersExpand">People (@PeopleInEventCount)</MatButton>
+            <MatButton Icon="@MatIconNames.People" OnClick="@OnPlayersExpand">People (@PeopleInEvent.Count)</MatButton>
         </MatCardActionIcons>
     </MatCardActions>
 </MatCard>
@@ -67,7 +67,7 @@
                 <MatDialogTitle>People</MatDialogTitle>
     <MatDialogContent>
         <MatList>
-        @for (int i = 0; i < PeopleInEventCount; i++)
+        @for (var i = 0; i < PeopleInEventCount; i++)
         {
             var i1 = i;
 

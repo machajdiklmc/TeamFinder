@@ -1,0 +1,15 @@
+﻿@page "/createevent"
+@using TeamFinder.Shared.Models
+
+<PageTitle>Team Finder - Create Event</PageTitle>
+<h3>Create event</h3>
+<EventCreateForm SportEvent = "@_sportEvent"></EventCreateForm>
+
+@code {
+
+    SportEvent _sportEvent = new()
+    {
+        Location = new SportEventLocation()
+    };
+
+}

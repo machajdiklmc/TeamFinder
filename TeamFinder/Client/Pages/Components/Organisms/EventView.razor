@@ -12,8 +12,9 @@
         <div class="mat-layout-grid-inner">
         @for (var i = RealRange.Item1; i < RealRange.Item2 && i < SportEvents.Count(); i++)
         {
+            var i1 = i;
             <div class="mat-layout-grid-cell-span-4">
-                <EventCard User="@User" @bind-SportEvent="@SportEvents[i]" IsOnIndex=@i></EventCard>
+                <EventCard User="@User" @bind-SportEvent="@SportEvents[i1]" IsOnIndex=@i1></EventCard>
             </div>
         }
         </div>

@@ -1,0 +1,97 @@
+﻿@using TeamFinder.Shared.Models
+@using System.ComponentModel.DataAnnotations
+@using System.IO
+@using System.Net.Http.Headers
+<EditForm Model="SportEvent" OnValidSubmit="Success">
+<DataAnnotationsValidator/>
+ 
+<div class="mat-layout-grid mat-layout-grid-align-middle" style="max-width: 75%;">
+    <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+            <MatTextField Label="SportName" @bind-Value="SportEvent.Name"
+                          Icon="@MatIconNames.Title"
+                          FullWidth="true"
+                          Required="true"
+                          HelperText="Name of the event"
+                          HelperTextPersistent="true"/>
+        </div>
+
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+            <MatTextField Label="Sport" @bind-Value="SportEvent.Sport"
+                          Icon="@MatIconNames.Pool"
+                          FullWidth="true"
+                          Required="true"
+                          HelperText="What sport you will be playing"
+                          HelperTextPersistent="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <MatTextField Label="Description" @bind-Value="SportEvent.Description"
+                          FullWidth="true"
+                          Required="true"
+                          TextArea="true"
+                          HelperText="Some description so people can understand specifics of your event"
+                          HelperTextPersistent="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
+            <LatitudeField @bind-Value="SportEvent.Location.Latitude"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
+            <LongitudeField @bind-Value="SportEvent.Location.Longitude"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
+            <MatTextField Label="City" @bind-Value="SportEvent.Location.City"
+                          Required="true"
+                          Icon="@MatIconNames.Location_city"
+                          FullWidth="true"
+                          HelperText="City in which you will be playing"
+                          HelperTextPersistent="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
+            <MatDatePicker Label="Date" @bind-Value="SportEvent.Date"
+                           Required="true"
+                           EnableTime="true"
+                           Enable24hours="true"
+                           HelperText="Date when you are playing"
+                           FullWidth="true"
+                           HelperTextPersistent="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <ValidationSummary/>
+        </div>
+        <div class="mat-layout-grid-inner mat-layout-grid-align-middle">
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <MatButton Type="submit" Raised="true">Create Event</MatButton>
+                <MatButton Raised="true" OnClick="Reset">Reset</MatButton>
+            </div>
+        </div>
+    </div>
+</div>
+
+</EditForm>
+
+@code {
+
+    [Parameter, EditorRequired]
+    public SportEvent SportEvent { get; set; } = new SportEvent()
+    {
+        Location = new SportEventLocation()
+    };
+
+    async Task<SportEvent> Success()
+    {
+        return await Task.FromResult(SportEvent);
+    }
+    
+    void Reset()
+    {
+        SportEvent = new SportEvent()
+        {
+            Location = new SportEventLocation()
+        };
+    }
+        
+}
