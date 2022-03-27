@@ -62,10 +62,17 @@ namespace TeamFinder.Server.Controllers
         
         [AllowAnonymous]
         [HttpPost(Endpoints.AddEvent)]
-        public async Task AddEvent([FromBody] SportEvent ev)
+        public async Task<bool> AddEvent([FromBody] SportEvent ev)
         {
-            await _eventRepository.Add(_mapper.Map<Models.SportEvent>(ev));
-            await _userEventsRepository.JoinEvent(ev.OwnerId, ev.Id, RelationshipType.Owner);
+            try
+            {
+                await _eventRepository.Add(_mapper.Map<Models.SportEvent>(ev));
+                return await _userEventsRepository.JoinEvent(ev.OwnerId, ev.Id, RelationshipType.Owner);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         [AllowAnonymous]

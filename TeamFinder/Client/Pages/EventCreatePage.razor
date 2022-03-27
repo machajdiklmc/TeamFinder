@@ -1,15 +1,69 @@
 ﻿@page "/createevent"
 @using TeamFinder.Shared.Models
+@using TeamFinder.Shared
+@using IdentityModel
+
+@inject HttpClient http
+@inject AuthenticationStateProvider _provider
 
 <PageTitle>Team Finder - Create Event</PageTitle>
 <h3>Create event</h3>
-<EventCreateForm SportEvent = "@_sportEvent"></EventCreateForm>
-
+<EventCreateForm SportEvent="@_sportEvent" SportEventChanged="Callback" OnValidEventSubmit="OnValidEventSubmit"></EventCreateForm>
+<MatSnackbar @bind-IsOpen="@SnackBarIsOpen">
+    <MatSnackbarContent>
+        @if (EventCreateSuccess)
+        {
+            <p>Event created!</p>
+        }
+        else
+        {
+            <p>Something went wrong! Please try again!</p>
+            @msg
+        }
+    </MatSnackbarContent>
+    <MatSnackbarActions>
+        <MatButton Raised="true">Retry</MatButton>
+    </MatSnackbarActions>
+</MatSnackbar>
 @code {
-
+    AuthenticationState? State { get; set; }
+    bool SnackBarIsOpen { get; set; }
+    bool EventCreateSuccess { get; set; }
+    public string msg { get; set; }
     SportEvent _sportEvent = new()
     {
         Location = new SportEventLocation()
     };
 
+    protected override async Task OnInitializedAsync()
+    {
+        State = await _provider.GetAuthenticationStateAsync();
+    }
+    
+
+    private async Task OnValidEventSubmit()
+    {
+        //todo user is not owner of created event 
+        try
+        {
+            _sportEvent.OwnerId = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+            var aaa = await http.PostAsJsonAsync(Endpoints.AddEvent, _sportEvent);
+            var aa = await aaa.Content.ReadAsStringAsync();
+            Console.WriteLine(aa);
+            EventCreateSuccess = await aaa.Content.ReadFromJsonAsync<bool>();
+        }
+        catch (Exception e)
+        {
+            EventCreateSuccess = false;
+            msg = e.Message;
+            Console.WriteLine(e.Message);
+        }
+        SnackBarIsOpen = true;
+    }
+
+    private void Callback(SportEvent obj)
+    {
+        _sportEvent = obj;
+        Console.WriteLine("SportEventChanged!" + obj.Name);
+    }
 }

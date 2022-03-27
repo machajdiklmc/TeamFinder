@@ -2,7 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.IO
 @using System.Net.Http.Headers
-<EditForm Model="SportEvent" OnValidSubmit="Success">
+<EditForm Model="SportEvent" OnValidSubmit="@(a)">
 <DataAnnotationsValidator/>
  
 <div class="mat-layout-grid mat-layout-grid-align-middle" style="max-width: 75%;">
@@ -74,18 +74,30 @@
 </EditForm>
 
 @code {
-
-    [Parameter, EditorRequired]
-    public SportEvent SportEvent { get; set; } = new SportEvent()
+    private SportEvent _sportEvent = new SportEvent()
     {
         Location = new SportEventLocation()
     };
 
-    async Task<SportEvent> Success()
+    [Parameter, EditorRequired]
+    public SportEvent SportEvent
     {
-        return await Task.FromResult(SportEvent);
+        get => _sportEvent;
+        set => _sportEvent = value;
     }
+
+    [Parameter]
+    public EventCallback<SportEvent>SportEventChanged { get; set; }
     
+    [Parameter]
+    public Func<Task> OnValidEventSubmit { get; set; }
+
+    async Task a()
+    {
+        await SportEventChanged.InvokeAsync(SportEvent);
+        await OnValidEventSubmit();
+    }
+
     void Reset()
     {
         SportEvent = new SportEvent()
