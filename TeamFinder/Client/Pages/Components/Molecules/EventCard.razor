@@ -26,7 +26,7 @@
 <MatCard class="demo-mat-card">
     <MatCardContent @onclick="@OnEventRedirect">
         <div class="demo-mat-card-content">
-            <BingMap Height="200" SportEvent="@SportEvent" Id="@(IsOnIndex + 1)" IsSimpleMap="true"></BingMap>
+            <Map Height="200" SportEvent="@SportEvent" Id="@(IsOnIndex + 1)" Type="Map.MapType.SimpleMap"></Map>
             <MatHeadline6 class="demo-mat-card-clean-margin" Style="padding-left: 7px;">
                 @SportEvent.Name
             </MatHeadline6>

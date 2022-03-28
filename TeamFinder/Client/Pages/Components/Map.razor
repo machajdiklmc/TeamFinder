@@ -1,0 +1,107 @@
+﻿@using MatBlazor
+@using Microsoft.Extensions.Options
+@using Newtonsoft.Json
+@using TeamFinder.Shared.Models
+@inject IJSRuntime JSRuntime
+@inject IConfiguration Configuration
+
+<MatPaper Outlined="true" Rounded="true">
+    <div id="@GetUniqueId(Id)" style="@($"height:{Height}px;")"></div>
+
+    <script suppress-error="BL9992" type="text/javascript">
+        Loader.async = true;      	      
+    </script>
+</MatPaper>
+
+@code { string GetUniqueId(int id) => Id == -1 ? "map" : "map-" + Convert.ToString(Id);
+
+    [Parameter, EditorRequired]
+    public int Height { get; set; } 
+
+    [Parameter, EditorRequired]
+    public SportEvent SportEvent { get; set; }
+    
+    [Parameter, EditorRequired]
+    public MapType Type { get; set; }
+    private DotNetObjectReference<Map>? dotNetHelper;
+    public enum MapType
+    {
+        SimpleMap,
+        InteractiveMap,
+        PositionalMap
+    }
+
+    [Parameter]
+    public int Id { get; set; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            switch (Type)
+            {
+                case MapType.SimpleMap:
+                    await DrawSimpleMap();
+                    break;
+                case MapType.InteractiveMap:
+                    await DrawInteractiveMap();
+                    break;
+                case MapType.PositionalMap:
+                    await DrawPositionalMap();
+                    break;
+            }
+        }
+    }
+    private async Task DrawSimpleMap()
+    {
+        await JSRuntime.InvokeVoidAsync("simpleMap", SportEvent.Location.Latitude, SportEvent.Location.Longitude,GetUniqueId(Id));
+    }
+    
+    private async Task DrawPositionalMap()
+    {
+        await JSRuntime.InvokeVoidAsync("positionalMap", SportEvent.Location.Latitude, SportEvent.Location.Longitude,GetUniqueId(Id));
+    }
+
+    private async Task DrawInteractiveMap()
+    {
+        dotNetHelper = DotNetObjectReference.Create(this);
+        await JSRuntime.InvokeVoidAsync("interactiveMap", SportEvent.Location.Latitude, SportEvent.Location.Longitude, GetUniqueId(Id),
+            dotNetHelper);
+    }
+
+    [JSInvokable]
+    public string GetHelloMessage(string passedName) => $"Hello, {passedName}!";
+    
+    public class GeocodeResult
+    {
+        public List<GeocodePosition> items;
+        public GeocodeCoords coords { get; set; }
+    }
+    
+    public class GeocodePosition
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string type { get; set; }
+        public GeocodeCoords coords { get; set; }
+    }
+    
+    public class GeocodeCoords
+    {
+        public decimal x { get; set; }
+        public decimal y { get; set; }
+    }
+
+    [Parameter]
+    public EventCallback<GeocodePosition>OnPosChange { get; set; }
+
+    [JSInvokable("UpdatePos")]
+    public void UpdatePos(System.Text.Json.JsonElement element)
+    {
+        var json = element.GetRawText();
+        var pos = JsonConvert.DeserializeObject<GeocodeResult>(json);
+        var p = pos.items.FirstOrDefault(pp => pp.type == "muni");
+        Console.WriteLine(p.coords.x + " " + p.coords.y + " " + p.name);
+        OnPosChange.InvokeAsync(p);
+    }
+
+}

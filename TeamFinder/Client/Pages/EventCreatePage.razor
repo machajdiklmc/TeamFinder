@@ -2,13 +2,16 @@
 @using TeamFinder.Shared.Models
 @using TeamFinder.Shared
 @using IdentityModel
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
 
 @inject HttpClient http
 @inject AuthenticationStateProvider _provider
 
 <PageTitle>Team Finder - Create Event</PageTitle>
 <h3>Create event</h3>
-<EventCreateForm SportEvent="@_sportEvent" SportEventChanged="Callback" OnValidEventSubmit="OnValidEventSubmit"></EventCreateForm>
+<EventCreateForm SportEvent="@_sportEvent" SportEventChanged="Callback"  OnValidEventSubmit="OnValidEventSubmit"></EventCreateForm>
 <MatSnackbar @bind-IsOpen="@SnackBarIsOpen">
     <MatSnackbarContent>
         @if (EventCreateSuccess)
@@ -30,9 +33,13 @@
     bool SnackBarIsOpen { get; set; }
     bool EventCreateSuccess { get; set; }
     public string msg { get; set; }
-    SportEvent _sportEvent = new()
+    SportEvent _sportEvent = new SportEvent
     {
-        Location = new SportEventLocation()
+        Location = new SportEventLocation() //Prague
+        {
+            Latitude = 14.41790,
+            Longitude = 50.12655
+        }
     };
 
     protected override async Task OnInitializedAsync()
@@ -43,7 +50,6 @@
 
     private async Task OnValidEventSubmit()
     {
-        //todo user is not owner of created event 
         try
         {
             _sportEvent.OwnerId = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
@@ -58,7 +64,10 @@
             msg = e.Message;
             Console.WriteLine(e.Message);
         }
-        SnackBarIsOpen = true;
+        finally
+        {
+            SnackBarIsOpen = true;
+        }
     }
 
     private void Callback(SportEvent obj)

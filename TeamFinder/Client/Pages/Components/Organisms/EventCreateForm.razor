@@ -60,6 +60,9 @@
                            HelperTextPersistent="true"/>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <Map Height="300" SportEvent="@_sportEvent" Type="Map.MapType.PositionalMap" OnPosChange="@posChange"></Map>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
             <ValidationSummary/>
         </div>
         <div class="mat-layout-grid-inner mat-layout-grid-align-middle">
@@ -74,11 +77,19 @@
 </EditForm>
 
 @code {
-    private SportEvent _sportEvent = new SportEvent()
-    {
-        Location = new SportEventLocation()
-    };
+    private SportEvent _sportEvent = DefaultSportEvent();
 
+    static SportEvent DefaultSportEvent()
+    {
+        return new SportEvent
+        {
+            Location = new SportEventLocation() //Prague
+            {
+                Latitude = 14.41790,
+                Longitude = 50.12655
+            }
+        };
+    }
     [Parameter, EditorRequired]
     public SportEvent SportEvent
     {
@@ -98,12 +109,14 @@
         await OnValidEventSubmit();
     }
 
+    void posChange(Map.GeocodePosition p)
+    {
+        Console.WriteLine(p.name + " qwe");
+    }
+
     void Reset()
     {
-        SportEvent = new SportEvent()
-        {
-            Location = new SportEventLocation()
-        };
+        SportEvent = DefaultSportEvent();
     }
         
 }
