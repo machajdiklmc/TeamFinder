@@ -66,6 +66,9 @@ namespace TeamFinder.Server.Controllers
         {
             try
             {
+                if(ev.Id == Guid.Empty)
+                    ev.Id = Guid.NewGuid();
+                
                 await _eventRepository.Add(_mapper.Map<Models.SportEvent>(ev));
                 return await _userEventsRepository.JoinEvent(ev.OwnerId, ev.Id, RelationshipType.Owner);
             }
