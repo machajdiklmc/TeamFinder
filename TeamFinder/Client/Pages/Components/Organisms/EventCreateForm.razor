@@ -33,18 +33,19 @@
                           HelperTextPersistent="true"/>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
-            <LatitudeField @bind-Value="SportEvent.Location.Latitude"/>
+            <LatitudeField @bind-Value="SportEvent.Location.Latitude" IsReadOnly="true"/>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
-            <LongitudeField @bind-Value="SportEvent.Location.Longitude"/>
+            <LongitudeField @bind-Value="SportEvent.Location.Longitude" IsReadOnly="true"/>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
             <MatTextField Label="City" @bind-Value="SportEvent.Location.City"
                           Id = "city"
                           Required="true"
                           Icon="@MatIconNames.Location_city"
+                          ReadOnly="true"
                           FullWidth="true"
                           HelperText="City in which you will be playing"
                           HelperTextPersistent="true"/>

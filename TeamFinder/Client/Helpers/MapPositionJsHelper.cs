@@ -20,9 +20,10 @@ public class MapPositionJsHelper
     SportEvent SportEvent { get; }
     
     [JSInvokable("UpdatePos")]
-    public async Task UpdatePos(System.Text.Json.JsonElement element)
+    public async Task UpdatePos(JsonElement element)
     {
-        var p = parsePos(element);
+        var p = RoundPosition(ParsePos(element));
+        
         SportEvent.Location = new SportEventLocation()
         {
             Latitude = p.coords.x,
@@ -32,7 +33,7 @@ public class MapPositionJsHelper
         await _onPosChange.InvokeAsync(SportEvent);
     }
 
-    private GeocodePosition parsePos(JsonElement element)
+    private GeocodePosition ParsePos(JsonElement element)
     {
         var json = element.GetRawText();
         var pos = JsonConvert.DeserializeObject<GeocodeResult>(json);
@@ -41,5 +42,12 @@ public class MapPositionJsHelper
         
         p = pos.items.FirstOrDefault(pp => pp.type == "osmm");
         return p ?? pos.items[3];
+    }
+
+    private GeocodePosition RoundPosition(GeocodePosition pos)
+    {
+        pos.coords.x = Math.Round(pos.coords.x, 5);
+        pos.coords.y = Math.Round(pos.coords.y, 5);
+        return pos;
     }
 }

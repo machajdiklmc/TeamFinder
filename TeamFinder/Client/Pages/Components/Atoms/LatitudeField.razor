@@ -1,19 +1,20 @@
-﻿<MatNumericUpDownField Label="Latitude"
+﻿<MatTextField Label="Latitude"
                        Id="latitude"
                        HelperText="Latitude position" 
                        HelperTextPersistent="true"
                        Required="true"
                        @bind-Value="@Value"
-                       DecimalPlaces="2"
+                       ReadOnly="@(IsReadOnly)"
                        FullWidth="true"
-                       Icon="@MatIconNames.My_location"
-                       Minimum="-90"
-                       Maximum="90">
-</MatNumericUpDownField>
+                       Icon="@MatIconNames.My_location">
+</MatTextField>
 
 @code {
     [Parameter]
     public double? Value { get; set; }
+
+    [Parameter]
+    public bool IsReadOnly { get; set; }
     
     [Parameter]
     public EventCallback<double>ValueChanged { get; set; }

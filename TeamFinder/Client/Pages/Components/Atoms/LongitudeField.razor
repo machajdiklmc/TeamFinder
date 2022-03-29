@@ -1,18 +1,20 @@
-﻿<MatNumericUpDownField Label="Longitude"
+﻿@using System.Runtime.CompilerServices
+<MatTextField Label="Longitude"
                        Id="longitude"
                        HelperText="Longitude position" 
                        HelperTextPersistent="true"
                        Required="true"
                        @bind-Value="@Value"
-                       DecimalPlaces="2"
+                       ReadOnly="@(IsReadOnly)"
                        Icon="@MatIconNames.My_location"
-                       FullWidth="true"
-                       Minimum="-180" 
-                       Maximum="180">
-</MatNumericUpDownField>
+                       FullWidth="true">
+</MatTextField>
 @code {
     [Parameter]
     public double? Value { get; set; }
+    
+    [Parameter]
+    public bool IsReadOnly { get; set; }
     
     [Parameter]
     public EventCallback<double>ValueChanged { get; set; }
