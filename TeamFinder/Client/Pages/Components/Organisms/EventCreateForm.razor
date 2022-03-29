@@ -42,6 +42,7 @@
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
             <MatTextField Label="City" @bind-Value="SportEvent.Location.City"
+                          Id = "city"
                           Required="true"
                           Icon="@MatIconNames.Location_city"
                           FullWidth="true"
@@ -60,7 +61,7 @@
                            HelperTextPersistent="true"/>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
-            <Map Height="300" SportEvent="@_sportEvent" Type="Map.MapType.PositionalMap" OnPosChange="@posChange"></Map>
+            <Map Height="300" SportEvent="@_sportEvent" Type="Map.MapType.PositionalMap" OnPosChange="OnPosChange"></Map>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
             <ValidationSummary/>
@@ -118,5 +119,10 @@
     {
         SportEvent = DefaultSportEvent();
     }
-        
+
+    void OnPosChange(SportEvent obj)
+    {
+        SportEvent.Location = obj.Location;
+    }
+
 }

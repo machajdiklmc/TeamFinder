@@ -4,7 +4,7 @@
 @using TeamFinder.Shared.Models
 @inject IJSRuntime JSRuntime
 @inject IConfiguration Configuration
-
+@implements IDisposable
 <MatPaper Outlined="true" Rounded="true">
     <div id="@GetUniqueId(Id)" style="@($"height:{Height}px;")"></div>
 
@@ -12,7 +12,7 @@
         Loader.async = true;      	      
     </script>
 </MatPaper>
-
+<code id="personCodeBlock"></code>
 @code { string GetUniqueId(int id) => Id == -1 ? "map" : "map-" + Convert.ToString(Id);
 
     [Parameter, EditorRequired]
@@ -58,16 +58,21 @@
     
     private async Task DrawPositionalMap()
     {
-        await JSRuntime.InvokeVoidAsync("positionalMap", SportEvent.Location.Latitude, SportEvent.Location.Longitude,GetUniqueId(Id));
+        jsInteropClasses = new JsInteropClasses3(JSRuntime, SportEvent, GetUniqueId(Id), OnPosChange);
+        await jsInteropClasses.InitPositionalMap(name);
+        Console.WriteLine(result + "?????????????????????");
+        //await JSRuntime.InvokeVoidAsync("positionalMap", SportEvent.Location.Latitude, SportEvent.Location.Longitude,GetUniqueId(Id));
     }
-
+    private string name = "test123";
+    private string result;
+    private JsInteropClasses3 jsInteropClasses;
     private async Task DrawInteractiveMap()
     {
-        dotNetHelper = DotNetObjectReference.Create(this);
-        await JSRuntime.InvokeVoidAsync("interactiveMap", SportEvent.Location.Latitude, SportEvent.Location.Longitude, GetUniqueId(Id),
-            dotNetHelper);
+        //var a = new CallDotNetFromJavaScript();
+        //await a.SendDotNetInstanceToJS();
+        //dotNetHelper = DotNetObjectReference.Create(this);
+        await JSRuntime.InvokeVoidAsync("interactiveMap", SportEvent.Location.Latitude, SportEvent.Location.Longitude, GetUniqueId(Id));
     }
-
     [JSInvokable]
     public string GetHelloMessage(string passedName) => $"Hello, {passedName}!";
     
@@ -87,21 +92,40 @@
     
     public class GeocodeCoords
     {
-        public decimal x { get; set; }
-        public decimal y { get; set; }
+        public double x { get; set; }
+        public double y { get; set; }
     }
 
     [Parameter]
-    public EventCallback<GeocodePosition>OnPosChange { get; set; }
-
-    [JSInvokable("UpdatePos")]
-    public void UpdatePos(System.Text.Json.JsonElement element)
+    public EventCallback<SportEvent>OnPosChange { get; set; }
+    
+    private JsToDotNetBridge jsToDotNetBridge = new JsToDotNetBridge();
+    private DotNetObjectReference<JsToDotNetBridge> jsToDotNetBridgeReference;
+    public void Dispose()
     {
-        var json = element.GetRawText();
-        var pos = JsonConvert.DeserializeObject<GeocodeResult>(json);
-        var p = pos.items.FirstOrDefault(pp => pp.type == "muni");
-        Console.WriteLine(p.coords.x + " " + p.coords.y + " " + p.name);
-        OnPosChange.InvokeAsync(p);
+        jsToDotNetBridgeReference?.Dispose();
     }
-
+    public class JsToDotNetBridge
+    {
+        [JSInvokable]
+        public object GetPerson()
+        {
+            var obj = new
+            {
+                FistName = "Jon",
+                LastName = "Doe",
+                Age = 27,
+                BirthDate = DateTime.Now.AddYears(-27), 
+                LikesDotNet = true
+            };
+            return obj;
+        }
+    }
+    
+    protected override Task OnInitializedAsync()
+    {
+        jsToDotNetBridgeReference = DotNetObjectReference.Create(jsToDotNetBridge);
+        JSRuntime.InvokeVoidAsync("jsToDotNetSamples.setDotNetReference", jsToDotNetBridgeReference);
+        return base.OnInitializedAsync();
+    }
 }

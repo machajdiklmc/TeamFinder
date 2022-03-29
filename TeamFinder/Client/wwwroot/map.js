@@ -24,10 +24,15 @@
     map.addControl(pointer);
     pointer.setCoords(SMap.Coords.fromWGS84(lat, long));
 }
+window.sayHello1 = (dotNetHelper) => {
+    return dotNetHelper.invokeMethodAsync('GetHelloMessage');
+};
 
-function positionalMap(lat, long, id, instance)
+var dotNetHelperGlobal;
+function positionalMap(dotnetHelper, lat, long, id)
 {
-    console.log(instance);
+    console.log(dotnetHelper);
+    dotNetHelperGlobal = dotnetHelper;
     var center = SMap.Coords.fromWGS84(lat, long);
     var map = new SMap(JAK.gel(String(id)), center, 12);
     map.addDefaultLayer(SMap.DEF_BASE).enable();
@@ -44,8 +49,26 @@ function positionalMap(lat, long, id, instance)
     function sendData(geocoder)
     {
         var results = geocoder.getResults();
-        instance.invokeMethodAsync("UpdatePos", results);
-        //DotNet.invokeMethodAsync("TeamFinder.Client", 'UpdatePos', results);
+        let loc = results.items.find(e => e.type == "muni");
+        if(loc === undefined)
+        {
+            loc = results.items.find(e => e.type == "ward");
+            if (loc === undefined)
+                loc = results.items[0];
+        }
+       // dotNetHelper.invokeMethodAsync('GetHelloMessage');
+        dotNetHelperGlobal.invokeMethodAsync('UpdatePos', results);
+        console.log(results);
+       /* let latitudeEl = document.getElementById('latitude');
+        let longitudeEl = document.getElementById('longitude');
+        let cityEl = document.getElementById('city');
+        latitudeEl.value = results.coords.x;
+        longitudeEl.value = results.coords.y;
+        cityEl.value = loc.name;
+        latitudeEl.dispatchEvent(new Event('change'));
+        longitudeEl.dispatchEvent(new Event('change'));
+        cityEl.dispatchEvent(new Event('change'));*/
+        
     }
     
     function start(e) {
@@ -58,8 +81,6 @@ function positionalMap(lat, long, id, instance)
         node[SMap.LAYER_MARKER].style.cursor = "";
         var coords = e.target.getCoords();
         new SMap.Geocoder.Reverse(coords, sendData);
-        console.log('EEEEEEEEE')
-        
     }
     
     var signals = map.getSignals();

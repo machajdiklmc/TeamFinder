@@ -29,9 +29,10 @@
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
-        window.sayHello1 = (dotNetHelper) => {
-            return dotNetHelper.invokeMethodAsync('GetHelloMessage');
-        };
+        window.updateMessageCaller = (dotNetHelper) => {
+            dotNetHelper.invokeMethodAsync('BlazorSample', 'UpdateMessageCaller');
+            dotNetHelper.dispose();
+        }
     </script>
 </body>
 
