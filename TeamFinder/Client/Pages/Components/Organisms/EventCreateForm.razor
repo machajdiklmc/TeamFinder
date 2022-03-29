@@ -2,7 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.IO
 @using System.Net.Http.Headers
-<EditForm Model="SportEvent" OnValidSubmit="@(a)">
+<EditForm Model="SportEvent" OnValidSubmit="@(OnFormSubmit)">
 <DataAnnotationsValidator/>
  
 <div class="mat-layout-grid mat-layout-grid-align-middle" style="max-width: 75%;">
@@ -104,16 +104,12 @@
     [Parameter]
     public Func<Task> OnValidEventSubmit { get; set; }
 
-    async Task a()
+    async Task OnFormSubmit()
     {
         await SportEventChanged.InvokeAsync(SportEvent);
         await OnValidEventSubmit();
     }
 
-    void posChange(Map.GeocodePosition p)
-    {
-        Console.WriteLine(p.name + " qwe");
-    }
 
     void Reset()
     {

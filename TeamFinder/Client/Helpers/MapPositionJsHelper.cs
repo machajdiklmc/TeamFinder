@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Text.Json;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 using TeamFinder.Client.Pages.Components;
@@ -6,31 +8,21 @@ using TeamFinder.Shared.Models;
 
 namespace TeamFinder.Client;
 
-public class HelloHelper
+public class MapPositionJsHelper
 {
     private readonly EventCallback<SportEvent> _onPosChange;
 
-    public HelloHelper(string name, SportEvent sportEvent, EventCallback<SportEvent> onPosChange)
+    public MapPositionJsHelper(SportEvent sportEvent, EventCallback<SportEvent> onPosChange)
     {
         _onPosChange = onPosChange;
-        Name = name;
         SportEvent = sportEvent;
     }
-
-    string Name { get; set; }
     SportEvent SportEvent { get; }
-
-    [JSInvokable]
-    public string GetHelloMessage() => $"Hello, {Name}!";
     
     [JSInvokable("UpdatePos")]
     public async Task UpdatePos(System.Text.Json.JsonElement element)
     {
-        var json = element.GetRawText();
-        var pos = JsonConvert.DeserializeObject<Map.GeocodeResult>(json);
-        var p = pos.items.FirstOrDefault(pp => pp.type == "muni");
-        Console.WriteLine(p.coords.x + " " + p.coords.y + " " + p.name);
-        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        var p = parsePos(element);
         SportEvent.Location = new SportEventLocation()
         {
             Latitude = p.coords.x,
@@ -38,5 +30,16 @@ public class HelloHelper
             City = p.name
         };
         await _onPosChange.InvokeAsync(SportEvent);
+    }
+
+    private GeocodePosition parsePos(JsonElement element)
+    {
+        var json = element.GetRawText();
+        var pos = JsonConvert.DeserializeObject<GeocodeResult>(json);
+        var p = pos.items.FirstOrDefault(pp => pp.type == "muni");
+        if (p != null) return p;
+        
+        p = pos.items.FirstOrDefault(pp => pp.type == "osmm");
+        return p ?? pos.items[3];
     }
 }

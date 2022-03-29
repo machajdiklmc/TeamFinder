@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Pages\Components\Atoms\" />
-    <Folder Include="Pages\Models" />
   </ItemGroup>
 
 </Project>

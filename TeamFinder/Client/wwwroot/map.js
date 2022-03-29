@@ -56,19 +56,7 @@ function positionalMap(dotnetHelper, lat, long, id)
             if (loc === undefined)
                 loc = results.items[0];
         }
-       // dotNetHelper.invokeMethodAsync('GetHelloMessage');
         dotNetHelperGlobal.invokeMethodAsync('UpdatePos', results);
-        console.log(results);
-       /* let latitudeEl = document.getElementById('latitude');
-        let longitudeEl = document.getElementById('longitude');
-        let cityEl = document.getElementById('city');
-        latitudeEl.value = results.coords.x;
-        longitudeEl.value = results.coords.y;
-        cityEl.value = loc.name;
-        latitudeEl.dispatchEvent(new Event('change'));
-        longitudeEl.dispatchEvent(new Event('change'));
-        cityEl.dispatchEvent(new Event('change'));*/
-        
     }
     
     function start(e) {
