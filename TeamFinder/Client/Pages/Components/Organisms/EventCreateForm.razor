@@ -1,0 +1,124 @@
+﻿@using TeamFinder.Shared.Models
+@using System.ComponentModel.DataAnnotations
+@using System.IO
+@using System.Net.Http.Headers
+<EditForm Model="SportEvent" OnValidSubmit="@(OnFormSubmit)">
+<DataAnnotationsValidator/>
+ 
+<div class="mat-layout-grid mat-layout-grid-align-middle" style="max-width: 75%;">
+    <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+            <MatTextField Label="SportName" @bind-Value="SportEvent.Name"
+                          Icon="@MatIconNames.Title"
+                          FullWidth="true"
+                          Required="true"
+                          HelperText="Name of the event"
+                          HelperTextPersistent="true"/>
+        </div>
+
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-6">
+            <MatTextField Label="Sport" @bind-Value="SportEvent.Sport"
+                          Icon="@MatIconNames.Pool"
+                          FullWidth="true"
+                          Required="true"
+                          HelperText="What sport you will be playing"
+                          HelperTextPersistent="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <MatTextField Label="Description" @bind-Value="SportEvent.Description"
+                          FullWidth="true"
+                          Required="true"
+                          TextArea="true"
+                          HelperText="Some description so people can understand specifics of your event"
+                          HelperTextPersistent="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+            <MatDatePicker Label="Date" @bind-Value="SportEvent.Date"
+                           Required="true"
+                           EnableTime="true"
+                           Minimum="DateTime.Today"
+                           Enable24hours="true"
+                           HelperText="Date when you are playing"
+                           FullWidth="true"
+                           HelperTextPersistent="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <Map Height="350" SportEvent="@_sportEvent" Type="Map.MapType.PositionalMap" OnPosChange="OnPosChange"></Map>
+            <div class="mat-caption" style="padding-left: 5px">Click on map or drag marker to select location for your event</div>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+            <LatitudeField @bind-Value="SportEvent.Location.Latitude" IsReadOnly="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+            <LongitudeField @bind-Value="SportEvent.Location.Longitude" IsReadOnly="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+            <MatTextField Label="City" @bind-Value="SportEvent.Location.City"
+                          Id = "city"
+                          Required="true"
+                          Icon="@MatIconNames.Location_city"
+                          ReadOnly="true"
+                          FullWidth="true"
+                          HelperText="City in which you will be playing"
+                          HelperTextPersistent="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+            <ValidationSummary/>
+        </div>
+        <div class="mat-layout-grid-inner mat-layout-grid-align-middle">
+            <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
+                <MatButton Type="submit" Raised="true">Create Event</MatButton>
+                <MatButton Raised="true" OnClick="Reset">Reset</MatButton>
+            </div>
+        </div>
+    </div>
+</div>
+
+</EditForm>
+
+@code {
+    private SportEvent _sportEvent = DefaultSportEvent();
+
+    static SportEvent DefaultSportEvent()
+    {
+        return new SportEvent
+        {
+            Location = new SportEventLocation() //Prague
+            {
+                Latitude = 14.41790,
+                Longitude = 50.12655
+            }
+        };
+    }
+    [Parameter, EditorRequired]
+    public SportEvent SportEvent
+    {
+        get => _sportEvent;
+        set => _sportEvent = value;
+    }
+
+    [Parameter]
+    public EventCallback<SportEvent>SportEventChanged { get; set; }
+    
+    [Parameter]
+    public Func<Task> OnValidEventSubmit { get; set; }
+
+    async Task OnFormSubmit()
+    {
+        await SportEventChanged.InvokeAsync(SportEvent);
+        await OnValidEventSubmit();
+        Reset();
+    }
+
+
+    void Reset()
+    {
+        SportEvent = DefaultSportEvent();
+    }
+
+    void OnPosChange(SportEvent obj)
+    {
+        SportEvent.Location = obj.Location;
+    }
+
+}

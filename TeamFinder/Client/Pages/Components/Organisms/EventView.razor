@@ -1,10 +1,10 @@
 ﻿@using TeamFinder.Shared.Models
 @using TeamFinder.Shared
 @using IdentityModel
-@using TeamFinder.Client.Pages.Models
-@using SportEvent = TeamFinder.Client.Pages.Models.SportEvent
-@inject HttpClient http
-@inject AuthenticationStateProvider provider
+@using TeamFinder.Client.Repository
+@inject HttpClient _http
+@inject UserRepository _userRepository
+@inject AuthenticationStateProvider _provider
 
 <div class="mat-layout-grid">
     @if (SportEvents != null)
@@ -12,8 +12,9 @@
         <div class="mat-layout-grid-inner">
         @for (var i = RealRange.Item1; i < RealRange.Item2 && i < SportEvents.Count(); i++)
         {
-            <div class="mat-layout-grid-cell-span-3">
-                <EventCard @bind-SportEvent="@SportEvents[i]"/>
+            var i1 = i;
+            <div class="mat-layout-grid-cell-span-4">
+                <EventCard User="@User" @bind-SportEvent="@SportEvents[i1]" IsOnIndex=@i1></EventCard>
             </div>
         }
         </div>
@@ -24,14 +25,18 @@
 {
     [Parameter]
     public List<SportEvent>? SportEvents { get; set; }
-    public AuthenticationState? State { get; set; }
+
+    AuthenticationState? State { get; set; }
     private User User { get; set; } = new User();
+
     [Parameter]
     public Range? ViewRange { get; set; } = null;
 
     [Parameter]
     public int By { get; set; } = 4;
-    public int SpanPerRow => 12/By;
+
+    public int SpanPerRow => 12 / By;
+
     private (int,int) RealRange
     {
         get
@@ -42,21 +47,30 @@
             return ViewRange == null ? (0, SportEvents.Count()) : (ViewRange.Value.Start.Value, ViewRange.Value.End.Value);
         }
     }
-    
+
     protected override async Task OnInitializedAsync()
     {
-        State = await provider.GetAuthenticationStateAsync();
+        State = await _provider.GetAuthenticationStateAsync();
         User.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
-        SportEvents?.ForEach(e => e.Type=RelationshipType.None);
-        var aaa = await http.GetAsync(Endpoints.GetUserEvents + "?userId=" + User.Id);
-        var userEvents = await aaa.Content.ReadFromJsonAsync<List<SportEvent>>();
+        User = await _userRepository.GetUser(User.Id!);
+
+        if (SportEvents is null)
+            return;
+        
+        for (int i = 0; i < SportEvents.Count; i++)
+        {
+            SportEvents[i].Type = RelationshipType.None;
+            SportEvents[i].CountId = i+1;
+        }
+        var aaa = await _http.PostAsJsonAsync(Endpoints.GetUserEvents, new GetUserEventsRequest(User.Id, null));
+        var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
 
         foreach (var ev in userEvents!)
         {
-            var e = SportEvents?.Find(e => e.Id == ev.Id);
+            var e = SportEvents?.Find(e => e.Id == ev.SportEventId);
             if (e is null) continue;
             e.Type = ev.Type;
         }
     }
-
 }
+

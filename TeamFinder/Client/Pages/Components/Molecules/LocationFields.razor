@@ -1,0 +1,18 @@
+﻿@using TeamFinder.Shared.Models
+<div class="mat-layout-grid">
+    <div class="mat-layout-grid-inner">
+        <div class="mat-layout-grid-cell">
+            <LatitudeField @bind-Value="Location.Latitude"/>
+            <LongitudeField @bind-Value="Location.Longitude"/>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public SportEventLocation Location { get; set; } = new SportEventLocation();
+    
+    [Parameter]
+    public EventCallback<SportEventLocation>LocationChanged { get; set; }
+}

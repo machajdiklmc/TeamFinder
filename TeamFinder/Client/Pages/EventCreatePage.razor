@@ -1,0 +1,93 @@
+﻿@page "/createevent"
+@using TeamFinder.Shared.Models
+@using TeamFinder.Shared
+@using IdentityModel
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+@inject IMatToaster _toaster
+@inject HttpClient _http
+@inject AuthenticationStateProvider _provider
+@inject NavigationManager _navigationManager
+
+<PageTitle>Team Finder - Create Event</PageTitle>
+<h3>Create event</h3>
+<EventCreateForm SportEvent="@_sportEvent" SportEventChanged="Callback"  OnValidEventSubmit="OnValidEventSubmit"></EventCreateForm>
+
+@code {
+    AuthenticationState? State { get; set; }
+    bool EventCreateSuccess { get; set; }
+
+    SportEvent _sportEvent = new SportEvent
+    {
+        Location = new SportEventLocation() //Prague
+        {
+            Latitude = 14.41790,
+            Longitude = 50.12655
+        }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        State = await _provider.GetAuthenticationStateAsync();
+    }
+    
+
+    private async Task OnValidEventSubmit()
+    {
+        try
+        {
+            _sportEvent.OwnerId = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+            _sportEvent.Id = Guid.NewGuid();
+            var aaa = await _http.PostAsJsonAsync(Endpoints.AddEvent, _sportEvent);
+            EventCreateSuccess = await aaa.Content.ReadFromJsonAsync<bool>();
+            if (EventCreateSuccess)
+            {
+                ShowToast(MatToastType.Success, _sportEvent);
+                _sportEvent = new SportEvent();
+            }
+            else
+                ShowToast(MatToastType.Warning, _sportEvent);
+        }
+        catch (Exception e)
+        {
+            EventCreateSuccess = false;
+        }
+    }
+
+    private void Callback(SportEvent obj)
+    {
+        _sportEvent = obj;
+    }
+
+    void ShowToast(MatToastType type, SportEvent ev)
+    {
+        var title = "Something went wrong";
+        var message = "Please, try again";
+        Func<MatToast,Task>? action = null;
+        if (type == MatToastType.Success)
+        {
+            message = "Click to redirect to event";
+            title = "Event created!";
+            action = toast =>
+            {
+                _navigationManager.NavigateTo("eventdetails/" + ev.Id);
+                toast.InvokeOnClose();
+                return Task.CompletedTask;
+            };
+        }
+        
+        _toaster.Add(message, type, title, MatIconNames.Event, config =>
+        {
+            config.ShowCloseButton = true;
+            config.ShowProgressBar = true;
+            config.MaximumOpacity = Convert.ToInt32(70);
+            config.RequireInteraction = true;
+
+            if (action is not null)
+                config.Onclick = action;
+        });
+    }
+
+}

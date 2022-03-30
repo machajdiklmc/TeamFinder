@@ -1,0 +1,47 @@
+﻿@page "/EventDetails/{SportEventId}"
+@using TeamFinder.Shared.Models
+@using TeamFinder.Shared
+@using Microsoft.AspNetCore.WebUtilities
+
+@inject HttpClient http
+
+<h3>EventDetails - @SportEvent?.Name</h3>
+@if (SportEvent != null)
+{
+    <div class="mat-layout-grid">
+        <div class="mat-layout-grid-inner">
+            <div class="mat-layout-grid-cell-span-12">
+                <Map SportEvent="@SportEvent" Id="-1" Height="400" Type="Map.MapType.InteractiveMap"></Map>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    @Message
+}
+@code {
+
+    SportEvent? SportEvent { get; set; }
+    public string Message { get; set; } = "Loading...";
+    [Parameter]
+    public string SportEventId { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var aaa = await http.PostAsJsonAsync(Endpoints.GetEvent, SportEventId);
+            SportEvent = await aaa.Content.ReadFromJsonAsync<SportEvent?>();
+        }
+        catch (Exception e)
+        {
+            //ignore
+        }
+        finally
+        {
+            if (SportEvent == null)
+                Message = "Event not found";
+        }
+    }
+}

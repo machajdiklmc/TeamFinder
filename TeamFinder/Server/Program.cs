@@ -34,7 +34,6 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<EventRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<UserEventsRepository>();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

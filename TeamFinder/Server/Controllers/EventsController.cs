@@ -9,7 +9,6 @@ using SportEvent = TeamFinder.Shared.Models.SportEvent;
 
 namespace TeamFinder.Server.Controllers
 {
-    [Authorize]
     [ApiController]
     public class EventsController : ControllerBase
     {
@@ -32,45 +31,67 @@ namespace TeamFinder.Server.Controllers
             _userRepository = userRepository;
         }
 
+        [AllowAnonymous]
         [HttpGet(Endpoints.GetAllEvents)]
         public async Task<List<SportEvent>> Get()
         {
-            return _mapper.Map<List<SportEvent>>(await _eventRepository.GetAll());
+            return _mapper.Map<List<SportEvent>>(await _eventRepository.GetAllEvents());
         }
-        
-        [HttpGet(Endpoints.GetUserJoinedEvents)]
-        public async Task<List<SportEvent>> FindUserJoinedEvents([FromQuery] string userId)
+
+        [HttpPost(Endpoints.GetAllUsersInEvent)]
+        public async Task<List<UserEvents>> GetAllUsersInEvent([FromBody] Guid eventId)
         {
-            var a = _mapper.Map<List<SportEvent>>(await _userEventsRepository.FindUserEvents(userId, RelationshipType.Joined));
+            var a = _mapper.Map<List<UserEvents>>(await _userEventsRepository.FindUserEventsByEvent(eventId));
             return a;
         }
-        [AllowAnonymous]
-        [HttpGet(Endpoints.GetUserEvents)]
-        public async Task<List<SportEvent>> FindUserEvents([FromQuery] string userId)
+        
+        [HttpPost(Endpoints.GetEvent)]
+        public async Task<SportEvent?> GetEvent([FromBody] Guid eventId)
         {
-            var a = _mapper.Map<List<SportEvent>>(await _userEventsRepository.FindUserEvents(userId, null));
+            var a = _mapper.Map<SportEvent?>(await _eventRepository.GetEvent(eventId));
+            return a;
+        }
+
+        [AllowAnonymous]
+        [HttpPost(Endpoints.GetUserEvents)]
+        public async Task<List<UserEvents>> FindUserEvents([FromBody] GetUserEventsRequest request)
+        {
+            var a = _mapper.Map<List<UserEvents>>(await _userEventsRepository.FindUserEventsByUser(request.UserId, (RelationshipType?)request.Type));
             return a;
         }
         
         [AllowAnonymous]
         [HttpPost(Endpoints.AddEvent)]
-        public async Task AddEvent([FromBody] SportEvent ev)
+        public async Task<bool> AddEvent([FromBody] SportEvent ev)
         {
-            await _eventRepository.Add(_mapper.Map<Models.SportEvent>(ev));
-            await _userEventsRepository.JoinEvent(ev.OwnerId, ev.Id, RelationshipType.Owner);
+            if (ev.Date < DateTime.Today)
+                return false;
+            
+            if(ev.Id == Guid.Empty)
+                ev.Id = Guid.NewGuid();
+            try
+            {
+                await _eventRepository.Add(_mapper.Map<Models.SportEvent>(ev));
+                return await _userEventsRepository.JoinEvent(ev.OwnerId, ev.Id, RelationshipType.Owner);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
+        [AllowAnonymous]
         [HttpPost(Endpoints.JoinEvent)]
-        public async Task<bool> JoinEvent([FromBody] UserEvents userEvent)
+        public async Task<bool> JoinEvent([FromBody] UserEventsRequest userEventRequest)
         {
-            return await _userEventsRepository.JoinEvent(userEvent.UserId, userEvent.SportEventId, RelationshipType.Joined);
+            return await _userEventsRepository.JoinEvent(userEventRequest.UserId, userEventRequest.SportEventId, RelationshipType.Joined);
         }
 
         [AllowAnonymous]
         [HttpPost(Endpoints.LeaveEvent)]
-        public async Task<bool> LeaveEvent([FromBody] UserEvents userEvent)
+        public async Task<bool> LeaveEvent([FromBody] UserEventsRequest userEventRequest)
         {
-            return await _userEventsRepository.LeaveEvent(userEvent.UserId, userEvent.SportEventId);
+            return await _userEventsRepository.LeaveEvent(userEventRequest.UserId, userEventRequest.SportEventId);
         }
     }
 }

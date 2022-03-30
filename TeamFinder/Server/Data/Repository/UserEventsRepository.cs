@@ -11,13 +11,23 @@ public class UserEventsRepository : RepositoryBase<UserEvents>
 
     protected override DbSet<UserEvents> DbSet => DbContext.UserEvents;
 
-    public async Task<List<Models.SportEvent>> FindUserEvents(string userId, RelationshipType? type)
+    public async Task<List<Models.UserEvents>> FindUserEventsByUser(string userId, RelationshipType? type)
     {
         return (await DbContext.UserEvents
                 .Include(ev => ev.SportEvent)
+                .Include(ev => ev.User)
                 .Where(e => e.UserId == userId &&  (type == null || e.Type == type))
                 .ToListAsync())
-            .Select(events => events.SportEvent)
+            .ToList();
+    }
+    
+    public async Task<List<UserEvents>> FindUserEventsByEvent(Guid eventId)
+    {
+        return (await DbContext.UserEvents
+                .Include(ev => ev.User)
+                .Include(ev => ev.SportEvent)
+                .Where(e => e.SportEventId == eventId)
+                .ToListAsync())
             .ToList();
     }
 
