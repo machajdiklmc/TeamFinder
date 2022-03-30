@@ -32,27 +32,7 @@
                           HelperText="Some description so people can understand specifics of your event"
                           HelperTextPersistent="true"/>
         </div>
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
-            <LatitudeField @bind-Value="SportEvent.Location.Latitude" IsReadOnly="true"/>
-        </div>
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
-        </div>
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
-            <LongitudeField @bind-Value="SportEvent.Location.Longitude" IsReadOnly="true"/>
-        </div>
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
-            <MatTextField Label="City" @bind-Value="SportEvent.Location.City"
-                          Id = "city"
-                          Required="true"
-                          Icon="@MatIconNames.Location_city"
-                          ReadOnly="true"
-                          FullWidth="true"
-                          HelperText="City in which you will be playing"
-                          HelperTextPersistent="true"/>
-        </div>
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-2">
-        </div>
-        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-5">
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
             <MatDatePicker Label="Date" @bind-Value="SportEvent.Date"
                            Required="true"
                            EnableTime="true"
@@ -62,7 +42,24 @@
                            HelperTextPersistent="true"/>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
-            <Map Height="300" SportEvent="@_sportEvent" Type="Map.MapType.PositionalMap" OnPosChange="OnPosChange"></Map>
+            <Map Height="350" SportEvent="@_sportEvent" Type="Map.MapType.PositionalMap" OnPosChange="OnPosChange"></Map>
+            <div class="mat-caption" style="padding-left: 5px">Click on map or drag marker to select location for your event</div>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+            <LatitudeField @bind-Value="SportEvent.Location.Latitude" IsReadOnly="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+            <LongitudeField @bind-Value="SportEvent.Location.Longitude" IsReadOnly="true"/>
+        </div>
+        <div class="mat-layout-grid-cell mat-layout-grid-cell-span-4">
+            <MatTextField Label="City" @bind-Value="SportEvent.Location.City"
+                          Id = "city"
+                          Required="true"
+                          Icon="@MatIconNames.Location_city"
+                          ReadOnly="true"
+                          FullWidth="true"
+                          HelperText="City in which you will be playing"
+                          HelperTextPersistent="true"/>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
             <ValidationSummary/>

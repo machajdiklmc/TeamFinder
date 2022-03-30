@@ -33,7 +33,7 @@
             <MatSubtitle2 class="demo-mat-card" Style="padding-left: 7px; padding-right: 7px">
                 <div class="row">
                     <div class="column">@SportEvent.Sport</div>
-                    <div class="column2">@SportEvent.Location.City, @SportEvent.Date.ToShortDateString()</div>
+                    <div class="column2">@SportEvent.Location.City, @SportEvent.Date.ToLocalTime()</div>
                 </div>
             </MatSubtitle2>
 
@@ -44,7 +44,11 @@
     </MatCardContent>
     <MatCardActions>
         <MatCardActionButtons>
-            @if (SportEvent.Type == RelationshipType.Owner)
+            @if (SportEvent.Date < DateTime.Now)
+            {
+                <MatButton Disabled="true">Finished</MatButton>  
+            }
+            else if (SportEvent.Type == RelationshipType.Owner)
             {
                 <MatButton Disabled="true">Owner</MatButton>  
             }

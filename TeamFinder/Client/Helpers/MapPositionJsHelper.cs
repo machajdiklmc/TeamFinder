@@ -36,18 +36,28 @@ public class MapPositionJsHelper
     private GeocodePosition ParsePos(JsonElement element)
     {
         var json = element.GetRawText();
-        var pos = JsonConvert.DeserializeObject<GeocodeResult>(json);
-        var p = pos.items.FirstOrDefault(pp => pp.type == "muni");
-        if (p != null) return p;
+        var geocodeResult = JsonConvert.DeserializeObject<GeocodeResult>(json);
+        var p = geocodeResult.items.FirstOrDefault(pp => pp.type == "muni");
+
+        GeocodePosition ChangePos(GeocodePosition pos, GeocodeCoords coords)
+        {
+            pos.coords = coords;
+            return pos;
+        }
         
-        p = pos.items.FirstOrDefault(pp => pp.type == "osmm");
-        return p ?? pos.items[3];
+        if (p != null)
+        {
+            return ChangePos(p, geocodeResult.coords);
+        }
+        
+        p = geocodeResult.items.FirstOrDefault(pp => pp.type == "osmm");
+        return ChangePos(p ?? geocodeResult.items[3], geocodeResult.coords);
     }
 
     private GeocodePosition RoundPosition(GeocodePosition pos)
     {
-        pos.coords.x = Math.Round(pos.coords.x, 5);
-        pos.coords.y = Math.Round(pos.coords.y, 5);
+        //pos.coords.x = Math.Round(pos.coords.x, 5);
+        //pos.coords.y = Math.Round(pos.coords.y, 5);
         return pos;
     }
 }

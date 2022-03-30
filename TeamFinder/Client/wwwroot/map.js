@@ -46,7 +46,7 @@ function positionalMap(dotnetHelper, lat, long, id)
     
     var pointer = new SMap.Control.Pointer({
         type: SMap.Control.Pointer.TYPES.RED,
-        snapHUDtoScreen: 20
+        snapHUDtoScreen: 0
     });
     pointer.addListener("pointer-click", function() {
         map.setCenter(SMap.Coords.fromWGS84(lat, long),true);

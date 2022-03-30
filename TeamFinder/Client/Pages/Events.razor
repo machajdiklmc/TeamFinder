@@ -14,6 +14,11 @@
 {
     <p><em>@LoadingMessage</em></p>
 }
+else if (_events.Count == 0)
+{
+    <p><em>@LoadingMessage</em></p>
+    <MatButton Link="createevent">Create event now</MatButton>
+}
 else
 {
     <MatPaginator Length="_events.Count()" PageSize="@pageSize" Page="@OnPage">a</MatPaginator>
@@ -39,6 +44,8 @@ else
         try
         {
             _events = await Http.GetFromJsonAsync<List<SportEvent>?>(Endpoints.GetAllEvents);
+            if (_events?.Count == 0)
+                LoadingMessage = "No events were found.";
         }
         catch (AccessTokenNotAvailableException exception)
         {
