@@ -17,21 +17,16 @@
         type: SMap.Control.Pointer.TYPES.RED,
         snapHUDtoScreen: 20
     });
-    /*
     pointer.addListener("pointer-click", function() {
         map.setCenter(SMap.Coords.fromWGS84(lat, long),true);
-    }, pointer);*/
+    }, pointer);
     map.addControl(pointer);
     pointer.setCoords(SMap.Coords.fromWGS84(lat, long));
 }
-window.sayHello1 = (dotNetHelper) => {
-    return dotNetHelper.invokeMethodAsync('GetHelloMessage');
-};
 
 var dotNetHelperGlobal;
 function positionalMap(dotnetHelper, lat, long, id)
 {
-    console.log(dotnetHelper);
     dotNetHelperGlobal = dotnetHelper;
     var center = SMap.Coords.fromWGS84(lat, long);
     var map = new SMap(JAK.gel(String(id)), center, 12);
@@ -45,18 +40,32 @@ function positionalMap(dotnetHelper, lat, long, id)
     var mark = new SMap.Marker(center);
     mark.decorate(SMap.Marker.Feature.Draggable);
     layer.addMarker(mark);
-
+    
+    var sync = new SMap.Control.Sync({bottomSpace:0});
+    map.addControl(sync);
+    
+    var pointer = new SMap.Control.Pointer({
+        type: SMap.Control.Pointer.TYPES.RED,
+        snapHUDtoScreen: 20
+    });
+    pointer.addListener("pointer-click", function() {
+        map.setCenter(SMap.Coords.fromWGS84(lat, long),true);
+    }, pointer);
+    map.addControl(pointer);
+    pointer.setCoords(SMap.Coords.fromWGS84(lat, long));
+    
     function sendData(geocoder)
     {
         var results = geocoder.getResults();
-        let loc = results.items.find(e => e.type == "muni");
-        if(loc === undefined)
-        {
-            loc = results.items.find(e => e.type == "ward");
-            if (loc === undefined)
-                loc = results.items[0];
-        }
-        dotNetHelperGlobal.invokeMethodAsync('UpdatePos', results);
+        dotNetHelperGlobal.invokeMethodAsync('UpdatePos', results); //send location data to FE
+    }
+    
+    var click = function(signal) {
+        var event = signal.data.event;
+        console.log(mark);
+        var coords = SMap.Coords.fromEvent(event, map);
+        mark.setCoords(coords); //set new marker location
+        new SMap.Geocoder.Reverse(coords, sendData); //call geocoder reverse to send data of location
     }
     
     function start(e) {
@@ -74,6 +83,7 @@ function positionalMap(dotnetHelper, lat, long, id)
     var signals = map.getSignals();
     signals.addListener(window, "marker-drag-stop", stop);
     signals.addListener(window, "marker-drag-start", start);
+    signals.addListener(window, "map-click", click);
 }
 
 function simpleMap(lat, long, uniqueId)
