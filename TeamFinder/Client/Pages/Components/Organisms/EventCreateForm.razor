@@ -106,6 +106,7 @@
     {
         await SportEventChanged.InvokeAsync(SportEvent);
         await OnValidEventSubmit();
+        Reset();
     }
 
 

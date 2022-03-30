@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TeamFinder.Shared
 {
-    public class Endpoints
+    public static class Endpoints
     {
         public const string GetAllEvents = "api/events";
         public const string GetEvent = "api/event";
