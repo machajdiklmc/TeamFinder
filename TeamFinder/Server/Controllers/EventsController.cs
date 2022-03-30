@@ -64,11 +64,13 @@ namespace TeamFinder.Server.Controllers
         [HttpPost(Endpoints.AddEvent)]
         public async Task<bool> AddEvent([FromBody] SportEvent ev)
         {
+            if (ev.Date < DateTime.Today)
+                return false;
+            
+            if(ev.Id == Guid.Empty)
+                ev.Id = Guid.NewGuid();
             try
             {
-                if(ev.Id == Guid.Empty)
-                    ev.Id = Guid.NewGuid();
-                
                 await _eventRepository.Add(_mapper.Map<Models.SportEvent>(ev));
                 return await _userEventsRepository.JoinEvent(ev.OwnerId, ev.Id, RelationshipType.Owner);
             }
