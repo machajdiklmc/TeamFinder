@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TeamFinder.Server.Models;
+using TeamFinder.Shared.Requests;
 
 namespace TeamFinder.Server.Data.Repository
 {
@@ -25,11 +26,21 @@ namespace TeamFinder.Server.Data.Repository
                 .SingleOrDefaultAsync();
         }
         
-        public async Task<List<SportEvent>> GetAllEvents()
+        public async Task<List<SportEvent>> GetAllEvents(GetEventsRequest request)
         {
-            return await DbSet.Include(e => e.Users)
-                .Include(e => e.Location)
-                .ToListAsync();
+            var events = DbSet.Include(e => e.Users)
+                .Include(e => e.Location);
+            
+            //todo filtering
+            
+            var ordered = request.OrderBy switch
+            {
+                GetEventsRequestOrderBy.Name => events.OrderBy(e => e.Name),
+                GetEventsRequestOrderBy.Date => events.OrderByDescending(e => e.Date),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            return await ordered.ToListAsync();
         }
     }
 }

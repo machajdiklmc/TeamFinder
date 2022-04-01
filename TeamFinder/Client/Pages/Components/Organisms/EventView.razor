@@ -1,9 +1,11 @@
 ﻿@using TeamFinder.Shared.Models
 @using TeamFinder.Shared
 @using IdentityModel
-@using TeamFinder.Client.Repository
+@using TeamFinder.Client.Services
+
 @inject HttpClient _http
-@inject UserRepository _userRepository
+@inject UserService _userService
+@inject EventsService _eventsService
 @inject AuthenticationStateProvider _provider
 
 <div class="mat-layout-grid">
@@ -14,7 +16,7 @@
         {
             var i1 = i;
             <div class="mat-layout-grid-cell-span-4">
-                <EventCard User="@User" @bind-SportEvent="@SportEvents[i1]" IsOnIndex=@i1></EventCard>
+                <EventCard User="@User" @bind-SportEv="@SportEvents[i1]" IsOnIndex=@i1></EventCard>
             </div>
         }
         </div>
@@ -50,26 +52,32 @@
 
     protected override async Task OnInitializedAsync()
     {
-        State = await _provider.GetAuthenticationStateAsync();
-        User.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
-        User = await _userRepository.GetUser(User.Id!);
-
         if (SportEvents is null)
             return;
         
-        for (int i = 0; i < SportEvents.Count; i++)
+        for (var i = 0; i < SportEvents?.Count; i++)
         {
             SportEvents[i].Type = RelationshipType.None;
             SportEvents[i].CountId = i+1;
         }
-        var aaa = await _http.PostAsJsonAsync(Endpoints.GetUserEvents, new GetUserEventsRequest(User.Id, null));
-        var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
-
-        foreach (var ev in userEvents!)
+        State = await _provider.GetAuthenticationStateAsync();
+        if (State?.User.Identity?.IsAuthenticated == true)
         {
-            var e = SportEvents?.Find(e => e.Id == ev.SportEventId);
-            if (e is null) continue;
-            e.Type = ev.Type;
+            User.Id = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+            User = await _userService.GetUser(User.Id!);
+            if (User.Id != null)
+            {
+                var userEvents = await _eventsService.GetUserEvents(new GetUserEventsRequest(User.Id, null));
+                if (userEvents != null)
+                {
+                    foreach (var ev in userEvents)
+                    {
+                        var e = SportEvents?.Find(e => e.Id == ev.SportEventId);
+                        if (e is null) continue;
+                        e.Type = ev.Type;
+                    }
+                }
+            }
         }
     }
 }

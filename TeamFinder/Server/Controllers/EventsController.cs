@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TeamFinder.Server.Data.Repository;
 using TeamFinder.Shared;
 using TeamFinder.Shared.Models;
+using TeamFinder.Shared.Requests;
 using RelationshipType = TeamFinder.Server.Models.RelationshipType;
 using SportEvent = TeamFinder.Shared.Models.SportEvent;
 
@@ -32,12 +33,14 @@ namespace TeamFinder.Server.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet(Endpoints.GetAllEvents)]
-        public async Task<List<SportEvent>> Get()
+        [HttpPost(Endpoints.GetAllEvents)]
+        public async Task<List<SportEvent>> Get([FromBody] GetEventsRequest request)
         {
-            return _mapper.Map<List<SportEvent>>(await _eventRepository.GetAllEvents());
+            var a = _mapper.Map<List<SportEvent>>(await _eventRepository.GetAllEvents(request));
+            return a;
         }
 
+        [AllowAnonymous]
         [HttpPost(Endpoints.GetAllUsersInEvent)]
         public async Task<List<UserEvents>> GetAllUsersInEvent([FromBody] Guid eventId)
         {
@@ -45,14 +48,14 @@ namespace TeamFinder.Server.Controllers
             return a;
         }
         
+        [AllowAnonymous]
         [HttpPost(Endpoints.GetEvent)]
         public async Task<SportEvent?> GetEvent([FromBody] Guid eventId)
         {
             var a = _mapper.Map<SportEvent?>(await _eventRepository.GetEvent(eventId));
             return a;
         }
-
-        [AllowAnonymous]
+        
         [HttpPost(Endpoints.GetUserEvents)]
         public async Task<List<UserEvents>> FindUserEvents([FromBody] GetUserEventsRequest request)
         {
@@ -60,7 +63,6 @@ namespace TeamFinder.Server.Controllers
             return a;
         }
         
-        [AllowAnonymous]
         [HttpPost(Endpoints.AddEvent)]
         public async Task<bool> AddEvent([FromBody] SportEvent ev)
         {
@@ -79,15 +81,13 @@ namespace TeamFinder.Server.Controllers
                 return false;
             }
         }
-
-        [AllowAnonymous]
+        
         [HttpPost(Endpoints.JoinEvent)]
         public async Task<bool> JoinEvent([FromBody] UserEventsRequest userEventRequest)
         {
             return await _userEventsRepository.JoinEvent(userEventRequest.UserId, userEventRequest.SportEventId, RelationshipType.Joined);
         }
-
-        [AllowAnonymous]
+        
         [HttpPost(Endpoints.LeaveEvent)]
         public async Task<bool> LeaveEvent([FromBody] UserEventsRequest userEventRequest)
         {

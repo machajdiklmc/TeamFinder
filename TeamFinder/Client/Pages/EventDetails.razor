@@ -2,8 +2,10 @@
 @using TeamFinder.Shared.Models
 @using TeamFinder.Shared
 @using Microsoft.AspNetCore.WebUtilities
+@using TeamFinder.Client.Services
 
 @inject HttpClient http
+@inject EventsService _eventsService
 
 <h3>EventDetails - @SportEvent?.Name</h3>
 @if (SportEvent != null)
@@ -31,8 +33,7 @@ else
     {
         try
         {
-            var aaa = await http.PostAsJsonAsync(Endpoints.GetEvent, SportEventId);
-            SportEvent = await aaa.Content.ReadFromJsonAsync<SportEvent?>();
+            SportEvent = await _eventsService.GetEvent(SportEventId);
         }
         catch (Exception e)
         {

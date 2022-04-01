@@ -5,9 +5,11 @@
 @using IdentityModel
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Diagnostics
+@using TeamFinder.Client.Services
 
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider provider
+@inject EventsService _eventsService
 @inject HttpClient http
 
 <style>
@@ -26,33 +28,33 @@
 <MatCard class="demo-mat-card">
     <MatCardContent @onclick="@OnEventRedirect">
         <div class="demo-mat-card-content">
-            <Map Height="200" SportEvent="@SportEvent" Id="@(IsOnIndex + 1)" Type="Map.MapType.SimpleMap"></Map>
+            <Map Height="200" SportEvent="@SportEv" Id="@(IsOnIndex + 1)" Type="Map.MapType.SimpleMap"></Map>
             <MatHeadline6 class="demo-mat-card-clean-margin" Style="padding-left: 7px;">
-                @SportEvent.Name
+                @SportEv.Name
             </MatHeadline6>
             <MatSubtitle2 class="demo-mat-card" Style="padding-left: 7px; padding-right: 7px">
                 <div class="row">
-                    <div class="column">@SportEvent.Sport</div>
-                    <div class="column2">@SportEvent.Location.City, @SportEvent.Date.ToLocalTime()</div>
+                    <div class="column">@SportEv.Sport</div>
+                    <div class="column2">@SportEv.Location.City, @SportEv.Date.ToLocalTime()</div>
                 </div>
             </MatSubtitle2>
 
             <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin" style="padding-left: 7px; height:50px; max-height: 50px">
-            @SportEvent?.Description
+            @SportEv?.Description
             </MatBody2>
         </div>
     </MatCardContent>
     <MatCardActions>
         <MatCardActionButtons>
-            @if (SportEvent.Date < DateTime.Now)
+            @if (SportEv.Date < DateTime.Now)
             {
                 <MatButton Disabled="true">Finished</MatButton>  
             }
-            else if (SportEvent.Type == RelationshipType.Owner)
+            else if (SportEv.Type == RelationshipType.Owner)
             {
                 <MatButton Disabled="true">Owner</MatButton>  
             }
-            else if (SportEvent.Type == RelationshipType.Joined)
+            else if (SportEv.Type == RelationshipType.Joined)
             {
                 <MatButton @onclick="OnUserClickLeaveEvent">Leave</MatButton>
             }
@@ -101,16 +103,16 @@
     List<User> PeopleInEvent { get; set; } = new List<User>();
     
     [Parameter]
-    public SportEvent SportEvent { get; set; } = null!;
+    public SportEvent SportEv { get; set; } = null!;
 
     [Parameter]
-    public EventCallback<SportEvent> SportEventChanged { get; set; }
+    public EventCallback<SportEvent> SportEvChanged { get; set; }
 
     AuthenticationState? State { get; set; }
 
     private void OnEventRedirect()
     {
-        NavigationManager.NavigateTo($"/eventdetails/{SportEvent.Id}");
+        NavigationManager.NavigateTo($"/eventdetails/{SportEv.Id}");
     }
 
     private void OnPlayersExpand(MouseEventArgs e)
@@ -123,8 +125,7 @@
         State = await provider.GetAuthenticationStateAsync();
         var userId = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
         if (userId != null) UserId = userId;
-        var aaa = await http.PostAsJsonAsync(Endpoints.GetAllUsersInEvent, SportEvent.Id);
-        var userEvents = await aaa.Content.ReadFromJsonAsync<List<UserEvents>>();
+        var userEvents = await _eventsService.GetAllUsersInEvent(SportEv.Id);
         PeopleInEventCount = userEvents?.Count ?? 0;
         
         if (userEvents != null)
@@ -133,40 +134,37 @@
 
     private async Task OnUserClickLeaveEvent(MouseEventArgs obj)
     {
-        var responseMessage = await http.PostAsJsonAsync(Endpoints.LeaveEvent, new UserEventsRequest(UserId,SportEvent.Id));
-
-        var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
-        if (!success) return;
-        SportEvent.Type = RelationshipType.None;
-
+        var success = await _eventsService.LeaveEvent(new UserEventsRequest(UserId, SportEv.Id));
+        
+        if (success == false) 
+            return;
+        
+        SportEv.Type = RelationshipType.None;
+        if (PeopleInEvent.Remove(User) == true)
+            --PeopleInEventCount;
         try
         {
-            await SportEventChanged.InvokeAsync(SportEvent);
+            await SportEvChanged.InvokeAsync(SportEv);
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
         }
-        
-        if (PeopleInEvent.Remove(User) == true)
-            --PeopleInEventCount;
     }
 
     private async Task OnUserClickJoinEvent(MouseEventArgs obj)
     {
-        var responseMessage = await http.PostAsJsonAsync(Endpoints.JoinEvent, new UserEventsRequest(UserId,SportEvent.Id));
-        
-        var success = await responseMessage.Content.ReadFromJsonAsync<bool>();
+        var success = await _eventsService.JoinEvent(new UserEventsRequest(UserId, SportEv.Id));
 
         if (success == false) 
             return;
         
-        SportEvent.Type = RelationshipType.Joined;
+        SportEv.Type = RelationshipType.Joined;
         PeopleInEvent.Add(User);
         ++PeopleInEventCount;
         try
         {
-            await SportEventChanged.InvokeAsync(SportEvent);
+            await SportEvChanged.InvokeAsync(SportEv);
         }
         catch (Exception e)
         {

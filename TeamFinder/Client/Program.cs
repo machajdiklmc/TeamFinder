@@ -2,12 +2,10 @@ using MatBlazor;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Configuration.UserSecrets;
 using TeamFinder.Client;
-using TeamFinder.Client.Repository;
+using TeamFinder.Client.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-args.ToList().ForEach(Console.WriteLine);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
@@ -28,12 +26,7 @@ builder.Services.AddMatToaster(config =>
     config.MaximumOpacity = 95;
 });
 
-builder.Services.AddTransient<UserRepository>();
-/*builder.Services.AddSingleton(p =>
-    {
-        var config = p.GetService<IConfiguration>();
-        var a = config.GetSection("App").Get<Configuration>();
-        return a;
-    });*/
-//string serverlessBaseURI = builder.Configuration["ServerlessBaseURI"];
+builder.Services.AddTransient<UserService>();
+builder.Services.AddTransient<EventsService>();
+
 await builder.Build().RunAsync();

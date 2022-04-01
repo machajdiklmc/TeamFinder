@@ -2,13 +2,13 @@
 using TeamFinder.Shared;
 using TeamFinder.Shared.Models;
 
-namespace TeamFinder.Client.Repository
+namespace TeamFinder.Client.Services
 {
-    public class UserRepository
+    public class UserService
     {
         private readonly HttpClient _http;
 
-        public UserRepository(HttpClient httpClient)
+        public UserService(HttpClient httpClient)
         {
             _http = httpClient;
         }
