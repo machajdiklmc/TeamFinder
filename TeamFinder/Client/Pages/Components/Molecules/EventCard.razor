@@ -8,7 +8,6 @@
 @using TeamFinder.Client.Services
 
 @inject NavigationManager NavigationManager
-@inject AuthenticationStateProvider provider
 @inject EventsService _eventsService
 @inject HttpClient http
 
@@ -46,22 +45,9 @@
     </MatCardContent>
     <MatCardActions>
         <MatCardActionButtons>
-            @if (SportEv.Date < DateTime.Now)
-            {
-                <MatButton Disabled="true">Finished</MatButton>  
-            }
-            else if (SportEv.Type == RelationshipType.Owner)
-            {
-                <MatButton Disabled="true">Owner</MatButton>  
-            }
-            else if (SportEv.Type == RelationshipType.Joined)
-            {
-                <MatButton @onclick="OnUserClickLeaveEvent">Leave</MatButton>
-            }
-            else
-            {
-                <MatButton @onclick="OnUserClickJoinEvent">Join</MatButton>  
-            }
+            <EventButton @bind-SportEv="@SportEv"
+                         OnUserClickJoinEvent="@OnUserClickJoinEvent" 
+                         OnUserClickLeaveEvent="@OnUserClickLeaveEvent"></EventButton>
         </MatCardActionButtons>
  
         <MatCardActionIcons>
@@ -94,8 +80,6 @@
     [Parameter]
     public User User { get; set; } = new User();
 
-    string UserId { get; set; }
-    
     [Parameter]
     public int IsOnIndex { get; set; }
 
@@ -107,9 +91,7 @@
 
     [Parameter]
     public EventCallback<SportEvent> SportEvChanged { get; set; }
-
-    AuthenticationState? State { get; set; }
-
+    
     private void OnEventRedirect()
     {
         NavigationManager.NavigateTo($"/eventdetails/{SportEv.Id}");
@@ -122,9 +104,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        State = await provider.GetAuthenticationStateAsync();
-        var userId = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
-        if (userId != null) UserId = userId;
         var userEvents = await _eventsService.GetAllUsersInEvent(SportEv.Id);
         PeopleInEventCount = userEvents?.Count ?? 0;
         
@@ -132,44 +111,16 @@
             PeopleInEvent = userEvents.Select(ue => ue.User).ToList();
     }
 
-    private async Task OnUserClickLeaveEvent(MouseEventArgs obj)
+    private void OnUserClickLeaveEvent(string userId)
     {
-        var success = await _eventsService.LeaveEvent(new UserEventsRequest(UserId, SportEv.Id));
-        
-        if (success == false) 
-            return;
-        
-        SportEv.Type = RelationshipType.None;
         if (PeopleInEvent.Remove(User) == true)
             --PeopleInEventCount;
-        try
-        {
-            await SportEvChanged.InvokeAsync(SportEv);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
     }
 
-    private async Task OnUserClickJoinEvent(MouseEventArgs obj)
+    private void OnUserClickJoinEvent(string userId)
     {
-        var success = await _eventsService.JoinEvent(new UserEventsRequest(UserId, SportEv.Id));
-
-        if (success == false) 
-            return;
-        
-        SportEv.Type = RelationshipType.Joined;
         PeopleInEvent.Add(User);
         ++PeopleInEventCount;
-        try
-        {
-            await SportEvChanged.InvokeAsync(SportEv);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
     }
 }
     
