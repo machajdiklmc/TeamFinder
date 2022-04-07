@@ -5,9 +5,9 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using RichardSzalay.MockHttp;
 
-namespace TeamFinder.bUnit;
+namespace TeamFinder.bUnit.TestBase.Helpers;
 
-public static class MockHttpClientBunitHelpers
+public static class MockHttpClientbUnitHelper
 {
     public static MockHttpMessageHandler AddMockHttpClient(this TestServiceProvider services)
     {

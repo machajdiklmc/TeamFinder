@@ -3,7 +3,7 @@ using AngleSharp.Dom;
 using Microsoft.AspNetCore.Components;
 using Xunit.Abstractions;
 
-namespace TeamFinder.bUnit;
+namespace TeamFinder.bUnit.Extensions;
 
 public static class ComponentExtensions
 {
