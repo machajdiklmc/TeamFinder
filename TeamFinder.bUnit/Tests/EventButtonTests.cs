@@ -14,30 +14,12 @@ namespace TeamFinder.bUnit.Tests;
 public class EventButtonTests : EventsContextBase<EventButton>
 {
     [Fact]
-    public void NotLoggedInTest()
+    public void CannotJoinFinishedEventTest()
     {
-        TestSetup(AuthorizationState.Unauthorized, SampleFutureEvent);
+        TestSetup(AuthorizationState.Authorized, GetSamplePastEvent());
         MockHttpResponses(new Dictionary<string, object>
             {
                 { Endpoints.JoinEvent, true }
-            }
-        );
-        var nav = Services.GetRequiredService<NavigationManager>();
-
-        Component.Find("a").Click();
-        Component.WaitForAssertion(() =>
-        {
-            Assert.Equal(nav.Uri, Localhost + "authentication/login");
-        });
-    }
-
-    [Fact]
-    public void CannotJoinFinishedEventTest()
-    {
-        TestSetup(AuthorizationState.Authorized, SamplePastEvent);
-        MockHttpResponses(new Dictionary<string, object>
-            {
-                {Endpoints.JoinEvent, true}
             }
         );
         var btn = Component.Find("button");
@@ -54,12 +36,60 @@ public class EventButtonTests : EventsContextBase<EventButton>
     }
     
     [Fact]
-    public void JoinEventTest()
+    public void LeaveEventTest()
     {
-        TestSetup(AuthorizationState.Authorized, SampleFutureEvent);
+        TestSetup(AuthorizationState.Authorized, GetSampleEvent(RelationshipType.Joined));
         MockHttpResponses(new Dictionary<string, object>
             {
-                {Endpoints.JoinEvent, true}
+                { Endpoints.LeaveEvent, true }
+            }
+        );
+        
+        var btn = Component.Find("button");
+        var beforeClickText = btn.GetInnerText();
+        
+        btn.Click();
+        Component.WaitForElementTextToBe("button", JoinText);
+        
+        var afterClickText = btn.GetInnerText();
+        
+        Assert.True(beforeClickText == LeaveText);
+        Assert.True(afterClickText == JoinText);
+        Assert.True(TestEvent.Type == RelationshipType.None);
+    }
+    
+    [Fact]
+    public void OwnerCantJoinOrLeaveTest()
+    {
+        TestSetup(AuthorizationState.Authorized, GetSampleEvent(RelationshipType.Owner));
+        MockHttpResponses(new Dictionary<string, object>
+            {
+                { Endpoints.JoinEvent, true },
+                { Endpoints.LeaveEvent, true }
+            }
+        );
+        
+        var btn = Component.Find("button");
+        var beforeClickText = btn.GetInnerText();
+        
+        btn.Click();
+        Component.WaitForElementTextToBe("button", JoinText,TimeSpan.FromMilliseconds(500), throwOnFailure: false);
+        Component.WaitForElementTextToBe("button", LeaveText,TimeSpan.FromMilliseconds(500), throwOnFailure: false);
+
+        var afterClickText = btn.GetInnerText();
+        
+        Assert.True(beforeClickText == OwnerText);
+        Assert.True(afterClickText == OwnerText);
+        Assert.True(TestEvent.Type == RelationshipType.Owner);
+    }
+
+    [Fact]
+    public void JoinEventTest()
+    {
+        TestSetup(AuthorizationState.Authorized, GetSampleEvent(RelationshipType.None));
+        MockHttpResponses(new Dictionary<string, object>
+            {
+                { Endpoints.JoinEvent, true }
             }
         );
         
@@ -76,6 +106,24 @@ public class EventButtonTests : EventsContextBase<EventButton>
         Assert.True(TestEvent.Type == RelationshipType.Joined);
     }
 
+    [Fact]
+    public void NotLoggedInTest()
+    {
+        TestSetup(AuthorizationState.Unauthorized, GetSampleEvent(RelationshipType.None));
+        MockHttpResponses(new Dictionary<string, object>
+            {
+                { Endpoints.JoinEvent, true }
+            }
+        );
+        var nav = Services.GetRequiredService<NavigationManager>();
+
+        Component.Find("a").Click();
+        Component.WaitForAssertion(() =>
+        {
+            Assert.Equal(nav.Uri, Localhost + "authentication/login");
+        });
+    }
+    
     public override IRenderedComponent<EventButton> SetupComponent(params object[] args)
     {
         var ev = args[0] as SportEvent;

@@ -9,9 +9,13 @@ namespace TeamFinder.bUnit.TestBase;
 public abstract class EventsContextBase<TComponent> : ContextBase<TComponent> where TComponent : ComponentBase
 {
     protected SportEvent TestEvent = null!;
-    protected SportEvent SamplePastEvent => new("Test event", DateTime.Now.Subtract(TimeSpan.FromDays(30)), "desc");
-    protected SportEvent SampleFutureEvent => new("Test event", DateTime.Now.Add(TimeSpan.FromDays(30)), "desc");
+    protected SportEvent GetSamplePastEvent() => new("Test event", DateTime.Now.Subtract(TimeSpan.FromDays(30)), "desc");
+    protected SportEvent GetSampleEvent(RelationshipType type) => new("Test event", DateTime.Now.Add(TimeSpan.FromDays(30)), "desc")
+    {
+        Type = type
+    };
     
+    protected const string OwnerText = "Owner";
     protected const string JoinText = "Join";
     protected const string LeaveText = "Leave";
     protected const string FinishedText = "Finished";

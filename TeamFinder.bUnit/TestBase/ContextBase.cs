@@ -13,7 +13,9 @@ namespace TeamFinder.bUnit.TestBase;
 public abstract class ContextBase<TComponent> : TestContext, IContextBase<TComponent> where TComponent : ComponentBase
 {
     protected const string Localhost = "http://localhost/";
-    
+    protected virtual string TestUserName => "qwe@qwe.qwe";
+    protected virtual string TestUserEmail => "qwe@qwe.qwe";
+
     protected readonly MockHttpMessageHandler MockHttpMessageHandler;
     protected readonly ITestOutputHelper TestOutputHelper;
     protected IRenderedComponent<TComponent> Component = null!;
@@ -32,9 +34,6 @@ public abstract class ContextBase<TComponent> : TestContext, IContextBase<TCompo
         Component = _componentSetup(componentArgs);
     }    
     
-    protected virtual string TestUserName => "qwe@qwe.qwe";
-    protected virtual string TestUserEmail => "qwe@qwe.qwe";
-
     protected virtual void SetupAuthorization(AuthorizationState state)
     {
         TestOutputHelper.WriteLine("Setting Authorization");
