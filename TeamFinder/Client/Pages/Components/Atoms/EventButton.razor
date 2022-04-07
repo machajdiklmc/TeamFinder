@@ -7,7 +7,7 @@
 
 @if (UserId is null)
 {
-    <MatButton href="authentication/login">Login</MatButton>   
+    <MatButtonLink Href="authentication/login">Login</MatButtonLink>   
 }
 else if (SportEv.Date < DateTime.Now)
 {
@@ -30,7 +30,7 @@ else
     [Parameter, EditorRequired]
     public SportEvent SportEv { get; set; } = null!;
 
-    [Parameter, EditorRequired] 
+    [Parameter] 
     public EventCallback<string> OnUserClickJoinEvent { get; set; }
     
     [Parameter, EditorRequired] 
@@ -44,7 +44,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         State = await _provider.GetAuthenticationStateAsync();
-        var userId = State.User.FindFirst(JwtClaimTypes.Subject)?.Value;
+        var a = State.User.FindFirst(JwtClaimTypes.Subject);
+        var userId = a?.Value;
         if (userId != null) UserId = userId;
     }
 

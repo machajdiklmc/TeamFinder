@@ -12,7 +12,7 @@ public class UserEvents
 
 public enum RelationshipType
 {
-    None=100,
-    Joined=0,
+    None=0,
+    Joined=2,
     Owner=1
 }

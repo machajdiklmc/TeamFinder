@@ -64,7 +64,7 @@
                 </div>
             </div>
         </div>
-        <Map SportEvent="@SportEvent" Id="-1" Height="400" Type="Map.MapType.InteractiveMap"></Map>
+        <Map SportEvent="@SportEvent" Id="-1" Height="350" Type="Map.MapType.InteractiveMap"></Map>
         <EventButton @bind-SportEv="@SportEvent" OnUserClickJoinEvent="OnUserClickJoinEvent" OnUserClickLeaveEvent="OnUserClickLeaveEvent"></EventButton>
     </MatPaper>
 }
@@ -127,7 +127,7 @@ else
                 if (ue is not null)
                     user = ue.User;
 
-                tmp?.Sort((ue1, ue2) => ue2.Type.CompareTo(ue1.Type));
+                tmp?.Sort((ue1, ue2) => ue1.Type.CompareTo(ue2.Type));
                 if (tmp != null)
                     Users = tmp
                         .Select((u, i) => (i + 1,u))

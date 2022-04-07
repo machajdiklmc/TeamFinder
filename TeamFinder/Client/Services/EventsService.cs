@@ -5,7 +5,7 @@ using TeamFinder.Shared.Requests;
 
 namespace TeamFinder.Client.Services;
 
-public class EventsService
+public class EventsService : IEventsService
 {
     private readonly HttpClient _http;
 
@@ -55,4 +55,15 @@ public class EventsService
         var response = await _http.PostAsJsonAsync(Endpoints.GetAllEvents, request ?? new GetEventsRequest(GetEventsRequestOrderBy.Date));
         return await response.Content.ReadFromJsonAsync<List<SportEvent>>();
     }
+}
+
+public interface IEventsService
+{
+    Task<bool> AddEvent(SportEvent sportEvent, string ownerId);
+    Task<bool> LeaveEvent(UserEventsRequest request);
+    Task<bool> JoinEvent(UserEventsRequest request);
+    Task<SportEvent?> GetEvent(string sportEventId);
+    Task<List<UserEvents>?> GetAllUsersInEvent(Guid sportEventId);
+    Task<List<UserEvents>?> GetUserEvents(GetUserEventsRequest request);
+    Task<List<SportEvent>?> GetEvents(GetEventsRequest? request);
 }
