@@ -16,7 +16,7 @@ public class EventButtonTests : EventsContextBase<EventButton>
     [Fact]
     public void CannotJoinFinishedEventTest()
     {
-        TestSetup(AuthorizationState.Authorized, GetSamplePastEvent());
+        TestSetup(AuthorizationState.Authorized, GetSamplePastEvent(RelationshipType.None));
         MockHttpResponses(new Dictionary<string, object>
             {
                 { Endpoints.JoinEvent, true }
@@ -136,4 +136,9 @@ public class EventButtonTests : EventsContextBase<EventButton>
     {
        
     }
+
+    private const string OwnerText = "Owner";
+    private const string JoinText = "Join";
+    private const string LeaveText = "Leave";
+    private const string FinishedText = "Finished";
 }

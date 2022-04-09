@@ -9,6 +9,12 @@ public static class ComponentExtensions
 {
     private static ITestOutputHelper? _testOutputHelper;
 
+    public static IElement FindById<TComponent>(this IRenderedComponent<TComponent> component, string id)
+        where TComponent : IComponent
+    {
+       return component.Find("#" + id);
+    }
+
     public static void WaitForComponentStateToBe<TComponent>(this IRenderedComponent<TComponent> renderedComponent, 
         Func<IRenderedComponent<TComponent>, bool> predicate, TimeSpan? timeSpan = null, bool throwOnFailure = true)
         where TComponent : IComponent

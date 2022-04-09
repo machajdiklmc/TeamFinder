@@ -1,0 +1,15 @@
+﻿<MatTextField Label="City" @bind-Value="Value"
+              Id = "city"
+              Required="true"
+              Icon="@MatIconNames.Location_city"
+              ReadOnly="true"
+              FullWidth="true"
+              HelperText="City in which you will be playing"
+              HelperTextPersistent="true"/>
+@code {
+    [Parameter]
+    public string? Value { get; set; }
+    
+    [Parameter]
+    public EventCallback<string>ValueChanged { get; set; }
+}

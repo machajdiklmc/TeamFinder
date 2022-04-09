@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using FluentAssertions;
 using IdentityModel;
+using MatBlazor;
 using Microsoft.AspNetCore.Components;
 using RichardSzalay.MockHttp;
 using TeamFinder.bUnit.Extensions;
@@ -13,18 +15,20 @@ namespace TeamFinder.bUnit.TestBase;
 public abstract class ContextBase<TComponent> : TestContext, IContextBase<TComponent> where TComponent : ComponentBase
 {
     protected const string Localhost = "http://localhost/";
-    protected virtual string TestUserName => "qwe@qwe.qwe";
-    protected virtual string TestUserEmail => "qwe@qwe.qwe";
+    protected virtual string TestUserName => "l_machajdik";
+    protected virtual string TestUserEmail => "l_machajdik@utb.cz";
+    protected TestAuthorizationContext TestAuthorizationContext;
 
     protected readonly MockHttpMessageHandler MockHttpMessageHandler;
     protected readonly ITestOutputHelper TestOutputHelper;
     protected IRenderedComponent<TComponent> Component = null!;
     protected ContextBase(ITestOutputHelper testOutputHelper)
     {
+        JSInterop.Mode = JSRuntimeMode.Loose;
+  
         TestOutputHelper = testOutputHelper;
         ComponentExtensions.Initialize(testOutputHelper);
-        
-        JSInterop.Setup<Object>("matBlazor.matButton.init", _ => true);
+        TestAuthorizationContext = this.AddTestAuthorization();
         MockHttpMessageHandler = Services.AddMockHttpClient();
     }
 
@@ -37,12 +41,11 @@ public abstract class ContextBase<TComponent> : TestContext, IContextBase<TCompo
     protected virtual void SetupAuthorization(AuthorizationState state)
     {
         TestOutputHelper.WriteLine("Setting Authorization");
-        var auth = this.AddTestAuthorization()
-            .SetAuthorized(TestUserName, state);
+        TestAuthorizationContext.SetAuthorized(TestUserName, state);
 
         if (state is not AuthorizationState.Unauthorized)
         {
-            auth.SetClaims(
+            TestAuthorizationContext.SetClaims(
                 new Claim(ClaimTypes.Email, TestUserEmail),
                 new Claim(JwtClaimTypes.Subject, Guid.NewGuid().ToString())
             );
@@ -61,7 +64,9 @@ public abstract class ContextBase<TComponent> : TestContext, IContextBase<TCompo
 
     private IRenderedComponent<TComponent> _componentSetup(params object[] args)
     {
-        TestOutputHelper.WriteLine("Setting component");
+        #if DEBUG
+            TestOutputHelper.WriteLine("Setting component");
+        #endif
         return SetupComponent(args);
     }
 }
