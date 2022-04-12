@@ -4,12 +4,11 @@
 @using TeamFinder.Shared.Models
 
 @inject IJSRuntime _jsRuntime
-@inject IConfiguration _configuration
 
 @implements IDisposable
 
 <MatPaper Outlined="true" Rounded="true">
-    <div id="@GetUniqueId(Id)" style="@($"height:{Height}px;")"></div>
+    <div id="@GetUniqueId(Id)" style="@($"height:{Height}px;")"/>
 
     <script suppress-error="BL9992" type="text/javascript">
         Loader.async = true;      	      
@@ -35,7 +34,7 @@
     }
 
     [Parameter]
-    public int Id { get; set; }
+    public int Id { get; set; } = -1;
     
     [Parameter]
     public EventCallback<SportEvent>OnPosChange { get; set; }

@@ -41,6 +41,7 @@ public abstract class EventsContextBase<TComponent> : ContextBase<TComponent> wh
             Longitude = 14.42
         };
     }
+    
     protected EventsContextBase(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
         Services.AddTransient<EventsService>();
