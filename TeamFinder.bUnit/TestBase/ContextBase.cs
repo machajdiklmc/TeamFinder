@@ -15,11 +15,11 @@ namespace TeamFinder.bUnit.TestBase;
 public abstract class ContextBase<TComponent> : TestContext, IContextBase<TComponent> where TComponent : ComponentBase
 {
     protected const string Localhost = "http://localhost/";
-    protected virtual string TestUserName => "l_machajdik";
-    protected virtual string TestUserEmail => "l_machajdik@utb.cz";
+    protected virtual string TestUserName => "test-user";
+    protected virtual string TestUserEmail => "test-user@utb.cz";
     protected TestAuthorizationContext TestAuthorizationContext;
 
-    protected readonly MockHttpMessageHandler MockHttpMessageHandler;
+    protected MockHttpMessageHandler MockHttpMessageHandler;
     protected readonly ITestOutputHelper TestOutputHelper;
     protected IRenderedComponent<TComponent> Component = null!;
     protected ContextBase(ITestOutputHelper testOutputHelper)
@@ -52,9 +52,12 @@ public abstract class ContextBase<TComponent> : TestContext, IContextBase<TCompo
         }
     }
 
-    public abstract IRenderedComponent<TComponent> SetupComponent(params object[] args);
-    
-    public virtual void MockHttpResponses(Dictionary<string, object> dictionary)
+    public virtual IRenderedComponent<TComponent> SetupComponent(params object[] args)
+    {
+        return RenderComponent<TComponent>();
+    }
+
+    public void MockHttpResponses(Dictionary<string, object> dictionary)
     {
         foreach (var (endpoint, returnValue) in dictionary)
         {

@@ -39,7 +39,7 @@
                            Minimum="DateTime.Today"
                            Enable24hours="true"
                            HelperText="Date when you are playing"
-                           FullWidth="true"
+                           FullWidth="true" 
                            HelperTextPersistent="true"/>
         </div>
         <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
@@ -52,8 +52,8 @@
         </div>
         <div class="mat-layout-grid-inner mat-layout-grid-align-middle">
             <div class="mat-layout-grid-cell mat-layout-grid-cell-span-12">
-                <MatButton Type="submit" Raised="true">Create Event</MatButton>
-                <MatButton Raised="true" OnClick="Reset">Reset</MatButton>
+                <MatButton Id="createEventBtn" Type="submit" Raised="true">Create Event</MatButton>
+                <MatButton Id="resetBtn" Raised="true" OnClick="Reset">Reset</MatButton>
             </div>
         </div>
     </div>

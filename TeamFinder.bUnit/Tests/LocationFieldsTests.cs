@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using MatBlazor;
 using Microsoft.AspNetCore.Components;
+using NuGet.Frameworks;
 using TeamFinder.bUnit.TestBase;
 using TeamFinder.Client.Pages.Components.Atoms;
 using TeamFinder.Client.Pages.Components.Molecules;
@@ -12,6 +14,27 @@ namespace TeamFinder.bUnit.Tests;
 
 public class LocationFieldsTests : EventsContextBase<LocationFields>
 {
+    [Fact]
+    public void FieldsAreReadOnly()
+    {
+        TestSetup(AuthorizationState.Authorized, GetSampleLocation());
+
+        var latitudeComponent = Component.FindComponent<LatitudeField>()
+            .FindComponent<MatTextField<double?>>();
+        
+        var longitudeComponent = Component
+            .FindComponent<LongitudeField>()
+            .FindComponent<MatTextField<double?>>();
+        
+        var cityComponent = Component
+            .FindComponent<CityField>()
+            .FindComponent<MatTextField<string>>();
+        
+        Assert.True(latitudeComponent.Instance.ReadOnly);
+        Assert.True(longitudeComponent.Instance.ReadOnly);
+        Assert.True(cityComponent.Instance.ReadOnly);
+    }
+    
     [Fact]
     public void LatitudeValueChangesTest()
     {

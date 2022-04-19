@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using TeamFinder.bUnit.Extensions;
 using TeamFinder.bUnit.TestBase;
 using TeamFinder.Client.Pages.Components.Atoms;
@@ -10,7 +12,7 @@ namespace TeamFinder.bUnit.Tests;
 
 public class LoginDisplayTests : UserContextBase<LoginDisplay>
 {
-    private readonly NavigationManager _navigationManager;
+    private readonly FakeSignOutSessionStateManager _signOutManager;
     private const string RegisterId = "register";
     private const string LoginId = "login";
     private const string LogoutId = "logout";
@@ -35,15 +37,16 @@ public class LoginDisplayTests : UserContextBase<LoginDisplay>
     }
     
     [Fact]
-    public void LogoutUrlIsCorrect()
+    public async Task LogoutStatesAreCorrect()
     {
         TestSetup(AuthorizationState.Authorized);
+        var beforeClickIsSignedOut = _signOutManager.IsSignedOut;
         var logoutBtn = Component.FindById(LogoutId);
-        logoutBtn.Click();
-        Component.WaitForAssertion(() =>
-        {
-            Assert.Equal(_navigationManager.Uri, Localhost + "authentication/logout");
-        });
+        
+        await logoutBtn.ClickAsync(new MouseEventArgs());
+        
+        Assert.False(beforeClickIsSignedOut);
+        Assert.True(_signOutManager.IsSignedOut);
     }
 
     [Fact]
@@ -57,11 +60,6 @@ public class LoginDisplayTests : UserContextBase<LoginDisplay>
 
     public LoginDisplayTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
-        _navigationManager = Services.GetRequiredService<NavigationManager>();
-    }
-    
-    public override IRenderedComponent<LoginDisplay> SetupComponent(params object[] args )
-    {
-        return RenderComponent<LoginDisplay>();
+        _signOutManager = Services.GetRequiredService<FakeSignOutSessionStateManager>();
     }
 }

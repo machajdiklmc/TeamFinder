@@ -4,17 +4,14 @@
                        HelperTextPersistent="true"
                        Required="true"
                        @bind-Value="@Value"
-                       ReadOnly="@(IsReadOnly)"
+                       ReadOnly="true"
                        Icon="@MatIconNames.My_location"
                        FullWidth="true">
 </MatTextField>
 @code {
     [Parameter]
     public double? Value { get; set; }
-    
-    [Parameter]
-    public bool IsReadOnly { get; set; }
-    
+
     [Parameter]
     public EventCallback<double>ValueChanged { get; set; }
 }

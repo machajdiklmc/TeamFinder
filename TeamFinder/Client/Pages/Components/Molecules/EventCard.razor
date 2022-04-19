@@ -7,9 +7,9 @@
 @using System.Diagnostics
 @using TeamFinder.Client.Services
 
-@inject NavigationManager NavigationManager
+@inject NavigationManager _navigationManager
 @inject EventsService _eventsService
-@inject HttpClient http
+@inject HttpClient _http
 
 <style>
     .column {
@@ -28,18 +28,18 @@
     <MatCardContent @onclick="@OnEventRedirect">
         <div class="demo-mat-card-content">
             <Map Height="200" SportEvent="@SportEv" Id="@(IsOnIndex + 1)" Type="Map.MapType.SimpleMap"></Map>
-            <MatHeadline6 class="demo-mat-card-clean-margin" Style="padding-left: 7px;">
+            <MatHeadline6 Id="@($"name{IsOnIndex+1}")" class="demo-mat-card-clean-margin" Style="padding-left: 7px;">
                 @SportEv.Name
             </MatHeadline6>
             <MatSubtitle2 class="demo-mat-card" Style="padding-left: 7px; padding-right: 7px">
                 <div class="row">
-                    <div class="column">@SportEv.Sport</div>
-                    <div class="column2">@SportEv.Location.City, @SportEv.Date.ToLocalTime()</div>
+                    <div id="sport@(IsOnIndex + 1)" class="column">@SportEv.Sport</div>
+                    <div id="cityDate@(IsOnIndex + 1)" class="column2">@SportEv.Location.City, @SportEv.Date.ToLocalTime()</div>
                 </div>
             </MatSubtitle2>
 
-            <MatBody2 class="demo-mat-card-content demo-mat-card-clean-margin" style="padding-left: 7px; height:50px; max-height: 50px">
-            @SportEv?.Description
+            <MatBody2 Id="@($"description{IsOnIndex+1}")" class="demo-mat-card-content demo-mat-card-clean-margin" style="padding-left: 7px; height:50px; max-height: 50px">
+                @SportEv?.Description
             </MatBody2>
         </div>
     </MatCardContent>
@@ -51,40 +51,23 @@
         </MatCardActionButtons>
  
         <MatCardActionIcons>
-            <MatButton Icon="@MatIconNames.People" OnClick="@OnPlayersExpand">People (@PeopleInEvent.Count)</MatButton>
+            <MatButton Id="@($"showPeopleBtn{IsOnIndex+1}")" Icon="@MatIconNames.People" OnClick="@OnPlayersExpand">People (@PeopleInEvent.Count)</MatButton>
         </MatCardActionIcons>
     </MatCardActions>
+    <PlayerListDialog @bind-PlayersExpanded="@PlayersExpanded" @bind-PeopleInEvent="PeopleInEvent"></PlayerListDialog>
 </MatCard>
-<MatDialog @bind-IsOpen="@PlayersExpanded">
-                <MatDialogTitle>People</MatDialogTitle>
-    <MatDialogContent>
-        <MatList>
-        @for (var i = 0; i < PeopleInEventCount; i++)
-        {
-            var i1 = i;
 
-            <MatCaption>
-                <b>@(i1 + 1).</b> @PeopleInEvent[i1].UserName<br>
-            </MatCaption>
-        }
-        </MatList>
-    </MatDialogContent>
-                <MatDialogActions>
-                    <MatButton OnClick="@(e => { PlayersExpanded = false; })">Close</MatButton>
-                </MatDialogActions>
-            </MatDialog>
 @code
 {
-    bool PlayersExpanded { get; set; }
+    bool PlayersExpanded { get; set; } = false;
 
     [Parameter]
     public User User { get; set; } = new User();
 
     [Parameter]
     public int IsOnIndex { get; set; }
-
-    int PeopleInEventCount { get; set; }
-    List<User> PeopleInEvent { get; set; } = new List<User>();
+    
+    List<User> PeopleInEvent { get; set; } = new();
     
     [Parameter]
     public SportEvent SportEv { get; set; } = null!;
@@ -94,33 +77,30 @@
     
     private void OnEventRedirect()
     {
-        NavigationManager.NavigateTo($"/eventdetails/{SportEv.Id}");
+        _navigationManager.NavigateTo($"/eventdetails/{SportEv.Id}");
     }
 
     private void OnPlayersExpand(MouseEventArgs e)
     {
-        PlayersExpanded = !PlayersExpanded;
+        PlayersExpanded = true;
     }
 
     protected override async Task OnInitializedAsync()
     {
         var userEvents = await _eventsService.GetAllUsersInEvent(SportEv.Id);
-        PeopleInEventCount = userEvents?.Count ?? 0;
-        
+
         if (userEvents != null)
             PeopleInEvent = userEvents.Select(ue => ue.User).ToList();
     }
 
     private void OnUserClickLeaveEvent(string userId)
     {
-        if (PeopleInEvent.Remove(User) == true)
-            --PeopleInEventCount;
+        PeopleInEvent.Remove(User);
     }
 
     private void OnUserClickJoinEvent(string userId)
     {
         PeopleInEvent.Add(User);
-        ++PeopleInEventCount;
     }
 }
     

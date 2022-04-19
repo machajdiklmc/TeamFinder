@@ -1,0 +1,40 @@
+﻿@using TeamFinder.Shared.Models
+<MatDialog IsOpen="@PlayersExpanded" IsOpenChanged="@Callback">
+    <MatDialogTitle>People</MatDialogTitle>
+    <MatDialogContent>
+        <MatList>
+            @for (var i = 0; i < PeopleInEvent.Count; i++)
+            {
+                var i1 = i;
+
+                <MatCaption>
+                    <b>@(i1 + 1).</b> @PeopleInEvent[i1].UserName<br>
+                </MatCaption>
+            }
+        </MatList>
+    </MatDialogContent>
+    <MatDialogActions>
+        <MatButton OnClick="@(e => { PlayersExpanded = false; Callback(false);})">Close</MatButton>
+    </MatDialogActions>
+</MatDialog>
+
+@code {
+
+    [Parameter]
+    public List<User> PeopleInEvent { get; set; } = null!;
+
+    [Parameter]
+    public bool PlayersExpanded { get; set; } = true;
+    
+    [Parameter]
+    public EventCallback<bool> PlayersExpandedChanged { get; set; }    
+    
+    [Parameter]
+    public EventCallback<List<User>> PeopleInEventChanged { get; set; }
+
+    private void Callback(bool obj)
+    {
+        PlayersExpandedChanged.InvokeAsync(obj);
+    }
+
+}

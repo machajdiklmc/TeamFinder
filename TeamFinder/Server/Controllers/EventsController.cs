@@ -39,8 +39,7 @@ namespace TeamFinder.Server.Controllers
             var a = _mapper.Map<List<SportEvent>>(await _eventRepository.GetAllEvents(request));
             return a;
         }
-
-        [AllowAnonymous]
+        
         [HttpPost(Endpoints.GetAllUsersInEvent)]
         public async Task<List<UserEvents>> GetAllUsersInEvent([FromBody] Guid eventId)
         {

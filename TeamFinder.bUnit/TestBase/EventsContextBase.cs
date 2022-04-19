@@ -16,6 +16,10 @@ public abstract class EventsContextBase<TComponent> : ContextBase<TComponent> wh
     };
     protected SportEvent GetSampleEvent(RelationshipType type) => new("Test event", DateTime.Now.Add(TimeSpan.FromDays(30)), "desc")
     {
+        Sport = "Soccer",
+        Date = DateTime.Now.AddDays(2),
+        Description = "some description",
+        Name = "Event name",
         Type = type,
         Location = GetSampleLocation()
     };
